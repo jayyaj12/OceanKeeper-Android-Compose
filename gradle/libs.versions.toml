@@ -23,6 +23,7 @@ retrofit = "2.11.0"
 retrofit2KotlinxSerializationConverter = "0.8.0"
 timber = "5.0.1"
 hilt = "2.55"
+uiTextAndroid = "1.6.6"
 
 [libraries]
 accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanistFlowlayout" }
@@ -53,6 +54,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit2KotlinxSerializationConverter" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+androidx-ui-text-android = { group = "androidx.compose.ui", name = "ui-text-android", version.ref = "uiTextAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
