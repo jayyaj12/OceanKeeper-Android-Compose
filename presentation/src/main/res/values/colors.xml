@@ -1,10 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!-- 기본 색상 -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#131313</color>
+
+    <!-- Primary Colors -->
+    <color name="primary_50">#DFF6F7</color>
+    <color name="primary_100">#B1E9EB</color>
+    <color name="primary_200">#7FDBDF</color>
+    <color name="primary_300">#4DCCD3</color>
+    <color name="primary_400">#28C1CB</color>
+    <color name="primary_500">#00B6C4</color>
+    <color name="primary_600">#03A7B2</color>
+    <color name="primary_700">#079299</color>
+    <color name="primary_800">#087E82</color>
+    <color name="primary_900">#0A5B59</color>
+
+    <!-- Secondary Colors -->
+    <color name="secondary_50">#EDF4FF</color>
+    <color name="secondary_100">#D7E7FF</color>
+    <color name="secondary_200">#B7D3FD</color>
+    <color name="secondary_300">#93AAFC</color>
+    <color name="secondary_400">#657EFF</color>
+    <color name="secondary_500">#6040F3</color>
+    <color name="secondary_600">#3E21C1</color>
+    <color name="secondary_700">#252D70</color>
+    <color name="secondary_800">#283A4A</color>
+    <color name="secondary_900">#182A32</color>
+
+    <!-- Blue Grayscale -->
+    <color name="blue_gray_50">#ECEFF1</color>
+    <color name="blue_gray_100">#CFD8DC</color>
+    <color name="blue_gray_200">#B0BEC5</color>
+    <color name="blue_gray_300">#90A4AE</color>
+    <color name="blue_gray_400">#78909C</color>
+    <color name="blue_gray_500">#607D8B</color>
+    <color name="blue_gray_600">#546E7A</color>
+    <color name="blue_gray_700">#455A64</color>
+    <color name="blue_gray_800">#37474F</color>
+    <color name="blue_gray_900">#263238</color>
+
+    <!-- Grayscale Colors -->
+    <color name="gray_50">#FAFAFA</color>
+    <color name="gray_100">#F5F5F5</color>
+    <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#E0E0E0</color>
+    <color name="gray_400">#BDBDBD</color>
+    <color name="gray_500">#9E9E9E</color>
+    <color name="gray_600">#757575</color>
+    <color name="gray_700">#616161</color>
+    <color name="gray_800">#424242</color>
+    <color name="gray_900">#212121</color>
+
+    <!-- 기타 색상 -->
+    <color name="worrying">#F04438</color>
 </resources>
