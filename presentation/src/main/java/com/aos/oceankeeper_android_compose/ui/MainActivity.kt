@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.aos.oceankeeper_android_compose.screen.login.LoginScreen
 import com.aos.oceankeeper_android_compose.screen.splash.SplashScreen
 import com.aos.oceankeeper_android_compose.ui.theme.OceanKeeperAndroidComposeTheme
 import timber.log.Timber
@@ -38,11 +39,11 @@ class MainActivity : ComponentActivity() {
                         ) {
                             SplashScreen(navController)
                         }
-//                        composable(
-//                            route = Screen.MovieDetailScreen.route + "/{movieCd}"
-//                        ) {
-//                            MovieDetailScreen()
-//                        }
+                        composable(
+                            route = Screen.LoginScreen.route
+                        ) {
+                            LoginScreen(navController)
+                        }
                     }
                 }
             }

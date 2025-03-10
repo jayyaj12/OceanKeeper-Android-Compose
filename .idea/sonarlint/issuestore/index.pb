@@ -29,13 +29,7 @@ Ppresentation/src/main/java/com/aos/oceankeeper_android_compose/ui/theme/Color.k
 Spresentation/src/main/java/com/aos/oceankeeper_android_compose/di/AppApplication.kt,0\2\02c9fba65dcf95a923ccec9633d10c09352954ab
 ‚
 Rpresentation/src/main/java/com/aos/oceankeeper_android_compose/module/ApiModule.kt,3\7\376e02a11b4bafe65a92d466fe2176cd0a8523c6
-†
-Vpresentation/src/main/java/com/aos/oceankeeper_android_compose/module/UseCaseModule.kt,a\6\a6105353618d094a28bcba3617323570eedb6a70
 ‰
 Ypresentation/src/main/java/com/aos/oceankeeper_android_compose/module/DataSourceModule.kt,7\e\7e339ea874ced5fcb1c2bfc2aa4bc96110e8bd02
-†
-Vpresentation/src/main/java/com/aos/oceankeeper_android_compose/module/ServiceModule.kt,6\9\69e3e1357b33d0709d1873c5300e17e9cd44822d
 ‰
 Ypresentation/src/main/java/com/aos/oceankeeper_android_compose/module/RepositoryModule.kt,9\f\9f0bc566e750fd6442525fcd0a4ed509ecd16a74
-Y
-)presentation/src/main/AndroidManifest.xml,f\f\ff448c8b12f3de1e58a75bb9abe0b8d4396181d5
