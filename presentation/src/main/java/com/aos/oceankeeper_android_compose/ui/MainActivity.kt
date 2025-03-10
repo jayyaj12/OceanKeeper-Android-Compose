@@ -20,8 +20,10 @@ import androidx.navigation.compose.rememberNavController
 import com.aos.oceankeeper_android_compose.screen.login.LoginScreen
 import com.aos.oceankeeper_android_compose.screen.splash.SplashScreen
 import com.aos.oceankeeper_android_compose.ui.theme.OceanKeeperAndroidComposeTheme
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

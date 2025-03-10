@@ -28,9 +28,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
 import com.example.oceankeeper_android_compose.R
+import timber.log.Timber
 
 @Composable
 fun LoginScreen(navController: NavController) {
@@ -44,7 +46,7 @@ fun LoginScreen(navController: NavController) {
 }
 
 @Composable
-fun LoginUi() {
+fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
         Text(
             modifier = Modifier.padding(top = 165.dp),
@@ -63,7 +65,7 @@ fun LoginUi() {
             textColor = Color.White,
             backgroundColor = Color("#03C75A".toColorInt())
         ) {
-
+            // 네이버로 계속하기 클릭
         }
         Spacer(modifier = Modifier.size(12.dp))
         LoginBtnUi(
@@ -72,7 +74,8 @@ fun LoginUi() {
             textColor = Color("#181600".toColorInt()),
             backgroundColor = Color("#FAE100".toColorInt())
         ) {
-
+            // 카카오톡으로 계속하기 클릭
+            viewModel.onClickedKakaoLogin()
         }
         Spacer(modifier = Modifier.size(12.dp))
         LoginBtnUi(
@@ -81,7 +84,7 @@ fun LoginUi() {
             textColor = Color.White,
             backgroundColor = Color("#000000".toColorInt())
         ) {
-
+            // Apple 로 계속하기 클릭
         }
     }
 }

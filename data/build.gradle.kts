@@ -22,9 +22,6 @@ android {
     }
 
     buildTypes {
-        val properties = Properties().apply {
-            load(rootProject.file("local.properties").inputStream())
-        }
         release {
             buildConfigField("String", "BASE_URL", "${properties["productuin.base.url"]}")
         }
