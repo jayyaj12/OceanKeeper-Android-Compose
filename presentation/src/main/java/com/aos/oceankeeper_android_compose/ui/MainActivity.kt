@@ -1,4 +1,4 @@
-package com.aos.oceankeeper_android_compose
+package com.aos.oceankeeper_android_compose.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
