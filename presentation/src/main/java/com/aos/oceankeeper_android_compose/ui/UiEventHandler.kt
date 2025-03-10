@@ -24,6 +24,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,10 +48,10 @@ object UiEventHandler {
         var isLoading by remember { mutableStateOf(false) }
         var toastText by remember { mutableStateOf("") }
         var isToastError by remember { mutableStateOf(false) }
+        val currentEvent by rememberUpdatedState(event) // ✅ 항상 최신 이벤트 감지
+        Timber.e("EventUi")
 
-        LaunchedEffect(event) {
-            Timber.e("event $event")
-
+        LaunchedEffect(currentEvent) {
             when (event) {
                 is BaseViewModel.Event.ShowToast -> {
                     toastText = event.message
@@ -58,13 +59,17 @@ object UiEventHandler {
                     delay(2000)
                     toastText = ""
                 }
+
                 is BaseViewModel.Event.ShowErrorToast -> {
+                    Timber.e("ShowErrorToast1")
                     isLoading = false
                     toastText = event.message
                     isToastError = true
                     delay(2000)
                     toastText = ""
+                    Timber.e("ShowErrorToast2")
                 }
+
                 is BaseViewModel.Event.ShowToastRes -> toastText = event.message.toString()
                 is BaseViewModel.Event.ExpiredToken -> TODO()
                 is BaseViewModel.Event.ShowLoading -> isLoading = true
@@ -106,11 +111,15 @@ object UiEventHandler {
                 verticalAlignment = Alignment.Bottom,
                 horizontalArrangement = Arrangement.Center
             ) {
-                Image(painter = painterResource(id = if(isToastError) {
-                    R.drawable.error_icon
-                } else {
-                    R.drawable.success_icon
-                }), contentDescription = "toast icon")
+                Image(
+                    painter = painterResource(
+                        id = if (isToastError) {
+                            R.drawable.error_icon
+                        } else {
+                            R.drawable.success_icon
+                        }
+                    ), contentDescription = "toast icon"
+                )
                 Text(
                     modifier = Modifier
                         .size(320.dp, 72.dp)

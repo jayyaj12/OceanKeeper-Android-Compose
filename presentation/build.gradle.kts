@@ -75,6 +75,8 @@ dependencies {
     implementation("com.kakao.sdk:v2-friend:2.20.6") // 피커 API 모듈
     implementation("com.kakao.sdk:v2-navi:2.20.6") // 카카오내비 API 모듈
     implementation("com.kakao.sdk:v2-cert:2.20.6") // 카카오톡 인증 서비스 API 모듈
+
+    implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.accompanist.flowlayout)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.paging.compose)
