@@ -52,6 +52,10 @@ android {
     buildFeatures {
         buildConfig = true
     }
+
+    hilt {
+        enableAggregatingTask = false
+    }
 }
 
 dependencies {
