@@ -20,5 +20,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "OceanKeeper-Android-Compose"
-include(":app")
- 
+include(":presentation")
+include(":domain")
+include(":data")
+include(":core")
