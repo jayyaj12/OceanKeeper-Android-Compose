@@ -1,14 +1,12 @@
 package com.aos.oceankeeper_android_compose.screen.login
 
 import android.content.Context
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aos.core.util.NetworkUtils
-import com.aos.oceankeeper_android_compose.base.BaseViewModel
+import com.aos.oceankeeper_android_compose.base.LoadingHandler
+import com.aos.oceankeeper_android_compose.base.ToastHandler
+import com.aos.oceankeeper_android_compose.base.ToastType
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
@@ -24,31 +22,24 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     @ApplicationContext private val context: Context
-) : BaseViewModel() {
-
-    private var _login = mutableStateOf<LoginState>(LoginState())
-    val login: State<LoginState> = _login
-
+) : ViewModel() {
     // 카카오 로그인
     fun onClickedKakaoLogin() {
-        baseEvent(Event.ShowLoading)
+        LoadingHandler.show()
         if (NetworkUtils.isNetworkConnected(context)) {
             val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
                 if (error != null) {
                     Timber.e("error? ${error}")
-                    baseEvent(Event.HideLoading)
+                    LoadingHandler.hide()
                 } else if (token != null) {
                     UserApiClient.instance.me { user, error ->
                         if (error != null) {
-                            _login.value = LoginState(text = "카카오 로그인에 실패하였습니다.", isError = true)
-                            baseEvent(Event.HideLoading)
+                            LoadingHandler.hide()
                         } else if (user != null) {
                             if (user.kakaoAccount != null) {
-
+                                // 정보 가져오기
                             } else {
-                                _login.value =
-                                    LoginState(text = "카카오 로그인에 실패하였습니다.", isError = true)
-                                baseEvent(Event.HideLoading)
+                                LoadingHandler.hide()
                             }
                         }
                     }
@@ -76,22 +67,18 @@ class LoginViewModel @Inject constructor(
                     } else {
                         UserApiClient.instance.me { user, error ->
                             if (error != null) {
-                                _login.value =
-                                    LoginState(text = "카카오 로그인에 실패하였습니다.", isError = true)
+                                //에러가 있을 경우
                             } else if (user != null) {
                                 if (token != null) {
                                     Timber.e("user $user")
                                     Timber.e("token $token")
                                     if (user.kakaoAccount != null) {
+                                        // 정보 가져오기
                                     } else {
-                                        _login.value =
-                                            LoginState(text = "카카오 로그인에 실패하였습니다.", isError = true)
-                                        baseEvent(Event.HideLoading)
+                                        LoadingHandler.hide()
                                     }
                                 } else {
-                                    _login.value =
-                                        LoginState(text = "카카오 로그인에 실패하였습니다.", isError = true)
-                                    baseEvent(Event.HideLoading)
+                                   LoadingHandler.hide()
                                 }
                             }
                         }
@@ -103,14 +90,12 @@ class LoginViewModel @Inject constructor(
                 )
             }
         } else {
-            Timber.e("viewmodel")
-//            _login.value = LoginState(text = "네트워크 상태를 확인해주세요.", isError = true)
-
             viewModelScope.launch {
+                ToastHandler.show(text = "네트워크 상태를 확인해주세요", toastType = ToastType.ERROR)
+
                 delay(2000)
-                baseEvent(Event.HideLoading)
+                LoadingHandler.hide( )
             }
-//            baseEvent(Event.ShowErrorToast("네트워크 상태를 확인해주세요."))
         }
     }
 
