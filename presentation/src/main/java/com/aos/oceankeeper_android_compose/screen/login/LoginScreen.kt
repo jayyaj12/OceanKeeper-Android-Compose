@@ -1,5 +1,6 @@
 package com.aos.oceankeeper_android_compose.screen.login
 
+import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,6 +48,9 @@ fun LoginScreen(navController: NavController) {
 
 @Composable
 fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+    val activity = context as? Activity ?: return // ✅ Activity Context 변환
+
     Box {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
             Text(
@@ -76,7 +81,7 @@ fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
             ) {
                 Timber.e("LoginBtnUi")
                 // 카카오톡으로 계속하기 클릭
-                viewModel.onClickedKakaoLogin()
+                viewModel.onClickedKakaoLogin(activity)
             }
             Spacer(modifier = Modifier.size(12.dp))
             LoginBtnUi(

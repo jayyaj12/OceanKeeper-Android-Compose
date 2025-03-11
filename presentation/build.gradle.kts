@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -19,6 +21,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+        val properties = Properties().apply {
+            load(rootProject.file("local.properties").inputStream())
         }
 
         buildConfigField("String", "KAKAO_APP_KEY", "${properties["kakao.app.key"]}")

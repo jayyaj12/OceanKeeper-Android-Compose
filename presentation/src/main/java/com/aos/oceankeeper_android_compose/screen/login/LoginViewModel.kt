@@ -1,5 +1,6 @@
 package com.aos.oceankeeper_android_compose.screen.login
 
+import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,6 +9,7 @@ import com.aos.oceankeeper_android_compose.base.LoadingHandler
 import com.aos.oceankeeper_android_compose.base.ToastHandler
 import com.aos.oceankeeper_android_compose.base.ToastType
 import com.kakao.sdk.auth.model.OAuthToken
+import com.kakao.sdk.auth.model.Prompt
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
@@ -20,13 +22,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
+class LoginViewModel @Inject constructor() : ViewModel() {
     // 카카오 로그인
-    fun onClickedKakaoLogin() {
+    fun onClickedKakaoLogin(activity : Activity) {
         LoadingHandler.show()
-        if (NetworkUtils.isNetworkConnected(context)) {
+        if (NetworkUtils.isNetworkConnected(activity)) {
             val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
                 if (error != null) {
                     Timber.e("error? ${error}")
@@ -46,9 +46,9 @@ class LoginViewModel @Inject constructor(
                 }
             }
 
-            if (UserApiClient.instance.isKakaoTalkLoginAvailable(context)) {
+            if (UserApiClient.instance.isKakaoTalkLoginAvailable(activity)) {
                 // 카카오톡으로 로그인
-                UserApiClient.instance.loginWithKakaoTalk(context) { token, error ->
+                UserApiClient.instance.loginWithKakaoTalk(activity) { token, error ->
                     Timber.e("loginWithKakaoTalk error $error")
                     // token.accessToken 소셜 토큰
 
@@ -62,7 +62,7 @@ class LoginViewModel @Inject constructor(
 
                         // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인 시도
                         UserApiClient.instance.loginWithKakaoAccount(
-                            context, callback = callback
+                            activity, callback = callback
                         )
                     } else {
                         UserApiClient.instance.me { user, error ->
@@ -86,7 +86,7 @@ class LoginViewModel @Inject constructor(
                 }
             } else {
                 UserApiClient.instance.loginWithKakaoAccount(
-                    context, callback = callback
+                    activity, callback = callback, prompts = listOf(Prompt.SELECT_ACCOUNT)
                 )
             }
         } else {
