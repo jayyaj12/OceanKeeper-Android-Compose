@@ -18,6 +18,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,8 +32,11 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.aos.oceankeeper_android_compose.ui.Screen
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
-import com.example.oceankeeper_android_compose.R
+import com.google.firebase.FirebaseApp
+import com.letspl.oceankeeper.R
 import timber.log.Timber
 
 @Composable
@@ -42,14 +46,35 @@ fun LoginScreen(navController: NavController) {
             .fillMaxSize()
             .background(Color.White)
     ) {
-        LoginUi()
+        LoginUi(navController)
     }
 }
 
 @Composable
-fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
+fun LoginUi(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val activity = context as? Activity ?: return // ✅ Activity Context 변환
+
+    val navState = viewModel.loginNavigation.value
+
+    LaunchedEffect(navState) {
+        when(navState) {
+            // 회원가입으로 이동
+            LoginNavigation.SIGNUP -> {
+                Timber.e("SIGNUP")
+                navController.navigate(Screen.SignUpInputScreen.route)
+            }
+            // 홈화면으로 이동
+            LoginNavigation.HOME -> {
+                navController.navigate(Screen.HomeScreen.route) {
+                    popUpTo(Screen.HomeScreen.route) { inclusive = true }
+                }
+            }
+            else -> {}
+        }
+
+        viewModel.resetNavigationState()
+    }
 
     Box {
         Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxSize()) {
@@ -71,6 +96,7 @@ fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
                 backgroundColor = Color("#03C75A".toColorInt())
             ) {
                 // 네이버로 계속하기 클릭
+                viewModel.onClickNaverLogin(activity)
             }
             Spacer(modifier = Modifier.size(12.dp))
             LoginBtnUi(
@@ -79,7 +105,6 @@ fun LoginUi(viewModel: LoginViewModel = hiltViewModel()) {
                 textColor = Color("#181600".toColorInt()),
                 backgroundColor = Color("#FAE100".toColorInt())
             ) {
-                Timber.e("LoginBtnUi")
                 // 카카오톡으로 계속하기 클릭
                 viewModel.onClickedKakaoLogin(activity)
             }
@@ -140,5 +165,5 @@ fun LoginBtnUi(
 @Composable
 @Preview(showBackground = true)
 fun LoginPreview() {
-    LoginUi()
+    LoginUi(rememberNavController())
 }

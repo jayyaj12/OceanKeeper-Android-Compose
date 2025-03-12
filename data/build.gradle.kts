@@ -12,18 +12,22 @@ android {
     namespace = "com.aos.data"
     compileSdk = 35
 
+    val properties = Properties().apply {
+        load(rootProject.file("local.properties").inputStream())
+    }
+
     defaultConfig {
         minSdk = 24
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
 
-        buildConfigField("String", "NAVER_BASE_URL", "${properties["movie.api.key"]}")
+        buildConfigField("String", "NAVER_BASE_URL", "${properties["naver.base.url"]}")
     }
 
     buildTypes {
         release {
-            buildConfigField("String", "BASE_URL", "${properties["productuin.base.url"]}")
+            buildConfigField("String", "BASE_URL", "${properties["production.base.url"]}")
         }
 
         debug {

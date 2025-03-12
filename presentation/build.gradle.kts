@@ -5,14 +5,22 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("kotlin-kapt")
     alias(libs.plugins.hilt)
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.oceankeeper_android_compose"
+    namespace = "com.letspl.oceankeeper" // ✅ 패키지명 변경
+//    namespace = "com.example.oceankeeper_android_compose"
     compileSdk = 35
 
+    val properties = Properties().apply {
+        load(rootProject.file("local.properties").inputStream())
+    }
+
     defaultConfig {
-        applicationId = "com.example.oceankeeper_android_compose"
+//        applicationId = "com.example.oceankeeper_android_compose"
+        applicationId = "com.letspl.oceankeeper" // ✅ 변경
+
         minSdk = 24
         targetSdk = 34
         versionCode = 1
@@ -22,12 +30,13 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
-        val properties = Properties().apply {
-            load(rootProject.file("local.properties").inputStream())
-        }
 
         buildConfigField("String", "KAKAO_APP_KEY", "${properties["kakao.app.key"]}")
         resValue("string", "kakao_app_key", "${properties["kakao.app.key"]}")
+
+        buildConfigField("String", "NAVER_BASE_URL", "${properties["naver.base.url"]}")
+        buildConfigField("String", "NAVER_SECRET_CLIENT_ID", "${properties["naver.serect.client.id"]}")
+        buildConfigField("String", "NAVER_CLIENT_ID", "${properties["naver.client.id"]}")
     }
 
     buildTypes {
@@ -37,6 +46,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "BASE_URL", "${properties["production.base.url"]}")
+        }
+        debug {
+            buildConfigField("String", "BASE_URL", "${properties["develop.base.url"]}")
         }
     }
     compileOptions {
@@ -72,6 +85,16 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    // 네이버 로그인
+//    implementation("com.navercorp.nid:oauth:5.10.0") // jdk 11
+    implementation("com.navercorp.nid:oauth-jdk8:5.10.0") // jdk 8
+    // firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-messaging:23.4.1")
+    implementation("com.google.firebase:firebase-analytics:21.5.1")
     // 카카오로그인
     implementation("com.kakao.sdk:v2-all:2.20.6") // 전체 모듈 설치, 2.11.0 버전부터 지원
     implementation("com.kakao.sdk:v2-user:2.20.6") // 카카오 로그인 API 모듈

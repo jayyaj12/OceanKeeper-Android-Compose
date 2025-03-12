@@ -2,17 +2,28 @@ package com.aos.oceankeeper_android_compose.screen.login
 
 import android.app.Activity
 import android.content.Context
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aos.core.util.NetworkUtils
+import com.aos.core.util.JsonUtil
+import com.aos.core.util.NetworkUtil
+import com.aos.domain.usecase.PostLoginUseCase
 import com.aos.oceankeeper_android_compose.base.LoadingHandler
 import com.aos.oceankeeper_android_compose.base.ToastHandler
 import com.aos.oceankeeper_android_compose.base.ToastType
+import com.google.android.gms.tasks.OnCompleteListener
+import com.google.firebase.messaging.FirebaseMessaging
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.auth.model.Prompt
 import com.kakao.sdk.common.model.ClientError
 import com.kakao.sdk.common.model.ClientErrorCause
 import com.kakao.sdk.user.UserApiClient
+import com.navercorp.nid.NaverIdLoginSDK
+import com.navercorp.nid.oauth.NidOAuthLogin
+import com.navercorp.nid.oauth.OAuthLoginCallback
+import com.navercorp.nid.profile.NidProfileCallback
+import com.navercorp.nid.profile.data.NidProfileMap
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
@@ -22,11 +33,81 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class LoginViewModel @Inject constructor() : ViewModel() {
+class LoginViewModel @Inject constructor(
+    private val postLoginUseCase: PostLoginUseCase,
+) : ViewModel() {
+
+    // 파베 디바이스 토큰
+    private var deviceToken = ""
+
+    private var _loginNavigation = mutableStateOf(LoginNavigation.DEFAULT)
+    val loginNavigation: State<LoginNavigation> = _loginNavigation
+
+    init {
+        getRegisterFcmToken()
+    }
+
+    // 서버 로그인
+    private fun postLogin(provider: String, providerId: String) {
+        viewModelScope.launch {
+            postLoginUseCase(deviceToken, provider, providerId).onSuccess {
+                LoadingHandler.hide()
+                _loginNavigation.value = LoginNavigation.HOME
+            }.onFailure {
+                LoadingHandler.hide()
+                if(JsonUtil.extractErrorDetail(it.message).equals("provider id와 일치하는 회원이 없습니다. 회원가입을 진행해주세요.")){
+                    _loginNavigation.value = LoginNavigation.SIGNUP
+                } else {
+                    ToastHandler.show(JsonUtil.extractErrorDetail(it.message), ToastType.ERROR)
+                }
+            }
+        }
+    }
+
+    // 네이버 로그인
+    fun onClickNaverLogin(activity: Activity) {
+        val oauthLoginCallback = object : OAuthLoginCallback {
+            override fun onSuccess() {
+                NidOAuthLogin().getProfileMap(object : NidProfileCallback<NidProfileMap> {
+                    override fun onSuccess(result: NidProfileMap) {
+                        Timber.e("result $result")
+                        postLogin(
+                            provider = "naver",
+                            providerId = result.profile?.get("id") as String
+                        )
+                    }
+
+                    override fun onFailure(httpStatus: Int, message: String) {
+                        val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                        val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                        Timber.e("errorCode $errorCode, errorDescription $errorDescription")
+                        ToastHandler.show(text = errorDescription ?: "", toastType = ToastType.ERROR)
+                    }
+
+                    override fun onError(errorCode: Int, message: String) {
+                        onFailure(errorCode, message)
+                    }
+                })
+            }
+            override fun onFailure(httpStatus: Int, message: String) {
+                val errorCode = NaverIdLoginSDK.getLastErrorCode().code
+                val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
+                Timber.e("errorCode $errorCode, errorDescription $errorDescription")
+                ToastHandler.show(text = errorDescription ?: "", toastType = ToastType.ERROR)
+            }
+            override fun onError(errorCode: Int, message: String) {
+                onFailure(errorCode, message)
+            }
+        }
+
+
+        NaverIdLoginSDK.authenticate(activity, oauthLoginCallback)
+    }
+
     // 카카오 로그인
-    fun onClickedKakaoLogin(activity : Activity) {
+    fun onClickedKakaoLogin(activity: Activity) {
         LoadingHandler.show()
-        if (NetworkUtils.isNetworkConnected(activity)) {
+        if (NetworkUtil.isNetworkConnected(activity)) {
             val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
                 if (error != null) {
                     Timber.e("error? ${error}")
@@ -38,6 +119,10 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                         } else if (user != null) {
                             if (user.kakaoAccount != null) {
                                 // 정보 가져오기
+                                postLogin(
+                                    provider = "kakao",
+                                    providerId = user.id.toString()
+                                )
                             } else {
                                 LoadingHandler.hide()
                             }
@@ -74,11 +159,16 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                                     Timber.e("token $token")
                                     if (user.kakaoAccount != null) {
                                         // 정보 가져오기
+                                        LoadingHandler.hide()
+                                        postLogin(
+                                            provider = "kakao",
+                                            providerId = user.id.toString()
+                                        )
                                     } else {
                                         LoadingHandler.hide()
                                     }
                                 } else {
-                                   LoadingHandler.hide()
+                                    LoadingHandler.hide()
                                 }
                             }
                         }
@@ -94,9 +184,26 @@ class LoginViewModel @Inject constructor() : ViewModel() {
                 ToastHandler.show(text = "네트워크 상태를 확인해주세요", toastType = ToastType.ERROR)
 
                 delay(2000)
-                LoadingHandler.hide( )
+                LoadingHandler.hide()
             }
         }
     }
 
+    // firebase fcm token 가져오기 및 저장
+    private fun getRegisterFcmToken(){
+        // 등록된 토큰 가져오기
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                return@OnCompleteListener
+            }
+
+            Timber.e("register Token ${task.result}")
+
+            deviceToken = task.result
+        })
+    }
+
+    fun resetNavigationState() {
+        _loginNavigation.value = LoginNavigation.DEFAULT
+    }
 }

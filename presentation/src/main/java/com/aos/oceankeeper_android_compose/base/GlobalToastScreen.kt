@@ -34,7 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
-import com.example.oceankeeper_android_compose.R
+import com.letspl.oceankeeper.R
 import kotlinx.coroutines.delay
 
 @Composable
