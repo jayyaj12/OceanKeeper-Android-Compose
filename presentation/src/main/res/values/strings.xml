@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">OceanKeeper-Android-Compose</string>
+    <string name="kakao_app_key">${KAKAO_APP_KEY}</string>
+
 </resources>

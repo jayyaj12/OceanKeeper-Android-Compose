@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools" package="com.letspl.oceankeeper">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:name="com.aos.oceankeeper_android_compose.di.AppApplication"
@@ -21,6 +23,8 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <data android:host="oauth"
+                    android:scheme="kakao22435e09dd60b9b2d7f32c7026057bbe" />
             </intent-filter>
         </activity>
     </application>

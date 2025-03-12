@@ -20,7 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.aos.oceankeeper_android_compose.ui.Screen
-import com.example.oceankeeper_android_compose.R
+import com.letspl.oceankeeper.R
 import kotlinx.coroutines.delay
 
 @Composable
@@ -30,8 +30,8 @@ fun SplashScreen(navController: NavController) {
     LaunchedEffect(Unit) {
         isVisible = true
         delay(2000)
-        navController.navigate("login_screen") {
-            popUpTo("splash_screen") {
+        navController.navigate(Screen.LoginScreen.route) {
+            popUpTo(Screen.SplashScreen.route) {
                 inclusive = true
             }
         }

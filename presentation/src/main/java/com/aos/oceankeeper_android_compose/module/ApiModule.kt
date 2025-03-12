@@ -1,4 +1,4 @@
-package com.aos.composemovieapp.module
+package com.aos.oceankeeper_android_compose.module
 
 import com.aos.data.BuildConfig
 import com.aos.data.network.adapter.CustomCallAdapterFactory
@@ -20,22 +20,6 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object ApiModule {
 
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class NaverRetrofit
-
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class OceanRetrofit
-
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class NaverService
-
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class OceanService
-
     @Singleton
     @Provides
     fun provideHeaderInterceptor(): HeaderInterceptor {
@@ -53,51 +37,23 @@ object ApiModule {
     @Singleton
     @Provides
     fun provideOkHttpClient(
-        headerInterceptor: HeaderInterceptor, loggingInterceptor: HttpLoggingInterceptor
+        headerInterceptor: HeaderInterceptor, loggingInterceptor: HttpLoggingInterceptor,
     ) = run {
-        OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
-            .addInterceptor(headerInterceptor)
+        OkHttpClient.Builder().addInterceptor(loggingInterceptor).addInterceptor(headerInterceptor)
             .build()
     }
 
     @Singleton
     @Provides
     fun provideOceanRetrofit(okHttpClient: OkHttpClient): Retrofit = run {
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(BuildConfig.BASE_URL)
-            .addCallAdapterFactory(CustomCallAdapterFactory())
-            .addConverterFactory(
+        Retrofit.Builder().client(okHttpClient).baseUrl(BuildConfig.BASE_URL)
+            .addCallAdapterFactory(CustomCallAdapterFactory()).addConverterFactory(
                 Json {
                     isLenient = true
                     ignoreUnknownKeys = true // 지정되지 않은 key 값은 무시
                     coerceInputValues = true // default 값 설정
                     explicitNulls = false // 없는 필드는 null로 설정
                 }.asConverterFactory("application/json".toMediaType())
-            )
-            .build()
+            ).build()
     }
-
-
-    @Singleton
-    @Provides
-    fun provideNaverRetrofit(okHttpClient: OkHttpClient): Retrofit = run {
-        Retrofit.Builder()
-            .client(okHttpClient)
-            .baseUrl(BuildConfig.NAVER_BASE_URL)
-            .addCallAdapterFactory(CustomCallAdapterFactory())
-            .addConverterFactory(
-                Json {
-                    isLenient = true
-                    ignoreUnknownKeys = true // 지정되지 않은 key 값은 무시
-                    coerceInputValues = true // default 값 설정
-                    explicitNulls = false // 없는 필드는 null로 설정
-                }.asConverterFactory("application/json".toMediaType())
-            )
-            .build()
-    }
-
-
-
 }
