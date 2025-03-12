@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aos.core.util.JsonUtil
 import com.aos.core.util.NetworkUtil
+import com.aos.core.util.UserInfoUtil
 import com.aos.domain.usecase.PostLoginUseCase
 import com.aos.oceankeeper_android_compose.base.LoadingHandler
 import com.aos.oceankeeper_android_compose.base.ToastHandler
@@ -71,6 +72,9 @@ class LoginViewModel @Inject constructor(
                 NidOAuthLogin().getProfileMap(object : NidProfileCallback<NidProfileMap> {
                     override fun onSuccess(result: NidProfileMap) {
                         Timber.e("result $result")
+                        // 유저 정보 저장
+                        UserInfoUtil.setUserInfo(nickname = result.profile?.get("nickname") as String, profileImgUrl = result.profile?.get("profile_image") as String)
+
                         postLogin(
                             provider = "naver",
                             providerId = result.profile?.get("id") as String
@@ -118,7 +122,9 @@ class LoginViewModel @Inject constructor(
                             LoadingHandler.hide()
                         } else if (user != null) {
                             if (user.kakaoAccount != null) {
-                                // 정보 가져오기
+                                // 유저 정보 저장
+                                UserInfoUtil.setUserInfo(nickname = user.kakaoAccount?.profile?.nickname, profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl)
+
                                 postLogin(
                                     provider = "kakao",
                                     providerId = user.id.toString()
@@ -160,6 +166,10 @@ class LoginViewModel @Inject constructor(
                                     if (user.kakaoAccount != null) {
                                         // 정보 가져오기
                                         LoadingHandler.hide()
+
+                                        // 유저 정보 저장
+                                        UserInfoUtil.setUserInfo(nickname = user.kakaoAccount?.profile?.nickname, profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl)
+
                                         postLogin(
                                             provider = "kakao",
                                             providerId = user.id.toString()

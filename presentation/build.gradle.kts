@@ -85,6 +85,8 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    // coil 이미지 라이브러리 
+    implementation("io.coil-kt:coil-compose:2.6.0")
     // 네이버 로그인
 //    implementation("com.navercorp.nid:oauth:5.10.0") // jdk 11
     implementation("com.navercorp.nid:oauth-jdk8:5.10.0") // jdk 8

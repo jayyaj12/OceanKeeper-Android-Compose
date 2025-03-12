@@ -33,7 +33,9 @@ android {
 }
 
 dependencies {
-
+    implementation("androidx.compose.ui:ui:1.7.8")
+    implementation("androidx.compose.foundation:foundation:1.7.8")
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
