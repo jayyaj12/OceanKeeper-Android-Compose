@@ -1,5 +1,8 @@
 package com.aos.oceankeeper_android_compose.screen.signup.input
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -16,9 +19,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -35,16 +40,21 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
 import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
 import com.aos.core.util.UserInfoUtil
 import com.aos.oceankeeper_android_compose.custom_ui.CustomTextField
 import com.aos.oceankeeper_android_compose.ui.theme.OceanKeeperAndroidComposeTheme
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
 import com.letspl.oceankeeper.R
+import timber.log.Timber
 
 @Composable
 fun SingUpInputScreen(navController: NavController) {
@@ -61,6 +71,18 @@ fun SingUpInputScreen(navController: NavController) {
 
 @Composable
 fun SingUpUi(navController: NavController, viewModel: SignUpInputViewModel = hiltViewModel()) {
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        viewModel.updateSelectedImage(uri)
+    }
+
+    val takePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+        if (bitmap != null) {
+            viewModel.saveBitmapToUri(bitmap)
+        }
+    }
+
     Column {
         topBarUi(onClickBackBtn = {
             navController.popBackStack()
@@ -71,6 +93,14 @@ fun SingUpUi(navController: NavController, viewModel: SignUpInputViewModel = hil
                 viewModel.onClickCompleteBtn()
             }, onNickValueChanged = { text ->
                 viewModel.onNickValueChanged(text)
+            }, onShowProfileDialog = {
+                viewModel.showProfileDialog()
+            }, onDismiss = {
+                viewModel.hideProfileDialog()
+            }, onCameraClick = {
+                takePictureLauncher.launch(null)
+            }, onGalleryClick = {
+                pickImageLauncher.launch("image/*")
             })
     }
 }
@@ -115,6 +145,10 @@ fun InputUi(
     viewModel: SignUpInputViewModel,
     onClickBtn: () -> Unit,
     onNickValueChanged: (String) -> Unit,
+    onShowProfileDialog: () -> Unit,
+    onDismiss: () -> Unit,
+    onCameraClick: () -> Unit,
+    onGalleryClick: () -> Unit,
 ) {
     Column(
         modifier = Modifier
@@ -142,8 +176,10 @@ fun InputUi(
                     .clip(RoundedCornerShape(44.dp)),
                 painter = rememberAsyncImagePainter(
                     ImageRequest.Builder(LocalContext.current)
-                        .data(UserInfoUtil.getUserInfo().profileImgUrl)
+                        .data(viewModel.selectImageUri.value)
                         .placeholder(R.drawable.default_profile)
+                        .transformations(RoundedCornersTransformation(44f))
+                        .memoryCachePolicy(CachePolicy.DISABLED)
                         .crossfade(true).build()
                 ),
                 contentDescription = "프로필 이미지 설정",
@@ -152,7 +188,10 @@ fun InputUi(
             Image(
                 modifier = Modifier
                     .size(36.dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .clickable {
+                        onShowProfileDialog()
+                    },
                 painter = painterResource(R.drawable.icon_add_profile),
                 contentDescription = "프로필 추가 버튼"
             )
@@ -169,15 +208,15 @@ fun InputUi(
 
         Box(modifier = Modifier.height(44.dp)) {
             CustomTextField(
-                value = viewModel.nickname.value,
-                lineColor = viewModel.lineColor.value,
+                value = viewModel.nickname,
+                lineColor = viewModel.lineColor,
                 onValueChange = { text ->
                     onNickValueChanged(text)
                 }
             )
 
             this@Column.AnimatedVisibility(
-                viewModel.isVisibleWarning.value, enter = fadeIn(tween(500)), exit = fadeOut(
+                viewModel.isVisibleWarning, enter = fadeIn(tween(500)), exit = fadeOut(
                     tween(500)
                 )
             ) {
@@ -197,7 +236,7 @@ fun InputUi(
         }
 
         AnimatedVisibility(
-            viewModel.isVisibleWarning.value, enter = fadeIn(tween(500)), exit = fadeOut(
+            viewModel.isVisibleWarning, enter = fadeIn(tween(500)), exit = fadeOut(
                 tween(500)
             )
         ) {
@@ -234,8 +273,133 @@ fun InputUi(
                 onClickBtn()
             }) {
             Text(
-                text = "회원가입 완료", fontFamily = Pretendard, fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 28.sp, color = Color.White
+                text = "회원가입 완료",
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                lineHeight = 28.sp,
+                color = Color.White
             )
+        }
+    }
+
+    ProfileImageDialog(
+        showDialog = viewModel.isVisibleProfileDialog,
+        onDismiss = {
+            onDismiss()
+        }, onCameraClick = {
+            onCameraClick()
+        }, onGalleryClick = {
+            onGalleryClick()
+        }
+    )
+}
+
+@Composable
+fun ProfileImageDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onCameraClick: () -> Unit,
+    onGalleryClick: () -> Unit,
+) {
+    if (showDialog) {
+        Dialog(onDismissRequest = { onDismiss() }) {
+            Box(
+                modifier = Modifier
+                    .size(312.dp, 272.dp)
+                    .background(Color.White, shape = RoundedCornerShape(28.dp)),
+                contentAlignment = Alignment.TopStart
+            ) {
+                Column {
+                    Text(
+                        text = "프로필 사진",
+                        lineHeight = 22.sp,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight.Bold,
+                        color = Color("#1D1B20".toColorInt()),
+                        fontSize = 16.sp,
+                        modifier = Modifier.padding(start = 24.dp, top = 24.dp)
+                    )
+
+                    Column(modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)) {
+                        Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onCameraClick()
+                            onDismiss()
+                        }) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .height(40.dp)
+                                    .wrapContentHeight(align = Alignment.CenterVertically),
+                                text = "사진 촬영",
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Pretendard,
+                                fontSize = 16.sp,
+                                lineHeight = 22.sp,
+                                color = colorResource(R.color.gray_900),
+                                textAlign = TextAlign.Start
+                            )
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 1.dp,
+                            color = Color("#999999".toColorInt())
+                        )
+                        Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            onGalleryClick()
+                            onDismiss()
+                        }) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .height(40.dp)
+                                    .wrapContentHeight(align = Alignment.CenterVertically),
+                                text = "앨범에서 사진 선택",
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = Pretendard,
+                                fontSize = 16.sp,
+                                lineHeight = 22.sp,
+                                color = colorResource(R.color.gray_900),
+                                textAlign = TextAlign.Start
+                            )
+                        }
+                        HorizontalDivider(
+                            modifier = Modifier.fillMaxWidth(),
+                            thickness = 1.dp,
+                            color = Color("#999999".toColorInt())
+                        )
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 24.dp).clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                onDismiss()
+                            }) {
+                            Text(
+                                text = "취소",
+                                modifier = Modifier
+                                    .size(48.dp, 40.dp)
+                                    .align(Alignment.CenterEnd)
+                                    .wrapContentHeight(Alignment.CenterVertically),
+                                textAlign = TextAlign.Center,
+                                fontFamily = Pretendard,
+                                fontWeight = FontWeight.Medium,
+                                color = colorResource(R.color.gray_900),
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -246,6 +410,19 @@ fun SignUpInputPreView() {
     OceanKeeperAndroidComposeTheme {
         Box {
             SingUpUi(rememberNavController())
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ProfileImgDialogPreView() {
+    OceanKeeperAndroidComposeTheme {
+        Box {
+            ProfileImageDialog(true,
+                onDismiss = { -> },
+                onCameraClick = { -> },
+                onGalleryClick = { -> })
         }
     }
 }
