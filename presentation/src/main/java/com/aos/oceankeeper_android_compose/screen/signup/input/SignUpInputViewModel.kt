@@ -56,7 +56,7 @@ class SignUpInputViewModel @Inject constructor(
     fun onClickCompleteBtn() {
         viewModelScope.launch(Dispatchers.IO) {
             withContext(Dispatchers.IO) {
-                saveUriStringToFile()
+                profileFile = FileUtil.saveUriStringToFile(context, _selectImageUri.value)
             }
 
             if (profileFile != null) {
@@ -139,21 +139,4 @@ class SignUpInputViewModel @Inject constructor(
             _selectImageUri.value = ""
         }
     }
-
-    private suspend fun saveUriStringToFile() {
-        withContext(Dispatchers.IO) {
-            var file: File? = FileUtil.handleImageUri(context, Uri.parse(selectImageUri.value))
-
-            if (file != null) {
-                Timber.d("변환된 파일 경로: ${file!!.absolutePath}")
-                profileFile = file
-                Timber.e("profile $profileFile")
-            } else {
-                Timber.e("파일 변환 실패")
-                ToastHandler.show("프로필 사진 불러오기가 실패하였습니다", ToastType.ERROR)
-            }
-        }
-    }
-
-
 }
