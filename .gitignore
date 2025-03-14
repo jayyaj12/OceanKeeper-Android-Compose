@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+/google-services.json
+
+
+git filter-branch --force --index-filter \
+'git rm --cached --ignore-unmatch google-services.json' \
+--prune-empty --tag-name-filter cat -- --all
+
+git push origin --force --all
