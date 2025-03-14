@@ -49,12 +49,11 @@ import coil.compose.rememberAsyncImagePainter
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.transform.RoundedCornersTransformation
-import com.aos.core.util.UserInfoUtil
 import com.aos.oceankeeper_android_compose.custom_ui.CustomTextField
+import com.aos.oceankeeper_android_compose.ui.Screen
 import com.aos.oceankeeper_android_compose.ui.theme.OceanKeeperAndroidComposeTheme
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
 import com.letspl.oceankeeper.R
-import timber.log.Timber
 
 @Composable
 fun SingUpInputScreen(navController: NavController) {
@@ -77,9 +76,18 @@ fun SingUpUi(navController: NavController, viewModel: SignUpInputViewModel = hil
         viewModel.updateSelectedImage(uri)
     }
 
-    val takePictureLauncher = rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
-        if (bitmap != null) {
-            viewModel.saveBitmapToUri(bitmap)
+    val takePictureLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) { bitmap ->
+            if (bitmap != null) {
+                viewModel.saveBitmapToUri(bitmap)
+            }
+        }
+
+    if (viewModel.signUpNavigation) {
+        navController.navigate(
+            Screen.SignUpCompleteScreen.route
+        ) {
+            popUpTo(Screen.SignUpInputScreen.route) { inclusive = true }
         }
     }
 
@@ -378,7 +386,8 @@ fun ProfileImageDialog(
                         )
                         Box(modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 24.dp).clickable(
+                            .padding(top = 24.dp)
+                            .clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null
                             ) {

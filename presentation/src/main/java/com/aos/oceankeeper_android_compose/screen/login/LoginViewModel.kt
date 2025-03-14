@@ -1,7 +1,6 @@
 package com.aos.oceankeeper_android_compose.screen.login
 
 import android.app.Activity
-import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -9,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.aos.core.util.JsonUtil
 import com.aos.core.util.NetworkUtil
 import com.aos.core.util.UserInfoUtil
-import com.aos.domain.usecase.PostLoginUseCase
+import com.aos.domain.usecase.user.login.PostLoginUseCase
 import com.aos.oceankeeper_android_compose.base.LoadingHandler
 import com.aos.oceankeeper_android_compose.base.ToastHandler
 import com.aos.oceankeeper_android_compose.base.ToastType
@@ -26,7 +25,6 @@ import com.navercorp.nid.oauth.OAuthLoginCallback
 import com.navercorp.nid.profile.NidProfileCallback
 import com.navercorp.nid.profile.data.NidProfileMap
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -56,7 +54,9 @@ class LoginViewModel @Inject constructor(
                 _loginNavigation.value = LoginNavigation.HOME
             }.onFailure {
                 LoadingHandler.hide()
-                if(JsonUtil.extractErrorDetail(it.message).equals("provider id와 일치하는 회원이 없습니다. 회원가입을 진행해주세요.")){
+                if (JsonUtil.extractErrorDetail(it.message)
+                        .equals("provider id와 일치하는 회원이 없습니다. 회원가입을 진행해주세요.")
+                ) {
                     _loginNavigation.value = LoginNavigation.SIGNUP
                 } else {
                     ToastHandler.show(JsonUtil.extractErrorDetail(it.message), ToastType.ERROR)
@@ -73,7 +73,14 @@ class LoginViewModel @Inject constructor(
                     override fun onSuccess(result: NidProfileMap) {
                         Timber.e("result $result")
                         // 유저 정보 저장
-                        UserInfoUtil.setUserInfo(nickname = result.profile?.get("nickname") as String, profileImgUrl = result.profile?.get("profile_image") as String)
+                        UserInfoUtil.setUserInfo(
+                            deviceToken = deviceToken,
+                            email = result.profile?.get("email") as String,
+                            nickname = result.profile?.get("nickname") as String,
+                            provider = "naver",
+                            providerId = result.profile?.get("id") as String,
+                            profileImgUrl = result.profile?.get("profile_image") as String
+                        )
 
                         postLogin(
                             provider = "naver",
@@ -85,7 +92,10 @@ class LoginViewModel @Inject constructor(
                         val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                         val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
                         Timber.e("errorCode $errorCode, errorDescription $errorDescription")
-                        ToastHandler.show(text = errorDescription ?: "", toastType = ToastType.ERROR)
+                        ToastHandler.show(
+                            text = errorDescription ?: "",
+                            toastType = ToastType.ERROR
+                        )
                     }
 
                     override fun onError(errorCode: Int, message: String) {
@@ -93,12 +103,14 @@ class LoginViewModel @Inject constructor(
                     }
                 })
             }
+
             override fun onFailure(httpStatus: Int, message: String) {
                 val errorCode = NaverIdLoginSDK.getLastErrorCode().code
                 val errorDescription = NaverIdLoginSDK.getLastErrorDescription()
                 Timber.e("errorCode $errorCode, errorDescription $errorDescription")
                 ToastHandler.show(text = errorDescription ?: "", toastType = ToastType.ERROR)
             }
+
             override fun onError(errorCode: Int, message: String) {
                 onFailure(errorCode, message)
             }
@@ -123,7 +135,14 @@ class LoginViewModel @Inject constructor(
                         } else if (user != null) {
                             if (user.kakaoAccount != null) {
                                 // 유저 정보 저장
-                                UserInfoUtil.setUserInfo(nickname = user.kakaoAccount?.profile?.nickname, profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl)
+                                UserInfoUtil.setUserInfo(
+                                    deviceToken = deviceToken,
+                                    email = user.kakaoAccount?.email,
+                                    nickname = user.kakaoAccount?.profile?.nickname,
+                                    provider = "kakao",
+                                    providerId = user.kakaoAccount?.profile?.profileImageUrl,
+                                    profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl
+                                )
 
                                 postLogin(
                                     provider = "kakao",
@@ -168,7 +187,14 @@ class LoginViewModel @Inject constructor(
                                         LoadingHandler.hide()
 
                                         // 유저 정보 저장
-                                        UserInfoUtil.setUserInfo(nickname = user.kakaoAccount?.profile?.nickname, profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl)
+                                        UserInfoUtil.setUserInfo(
+                                            deviceToken = deviceToken,
+                                            email = user.kakaoAccount?.email,
+                                            nickname = user.kakaoAccount?.profile?.nickname,
+                                            provider = "kakao",
+                                            providerId = user.id.toString(),
+                                            profileImgUrl = user.kakaoAccount?.profile?.profileImageUrl
+                                        )
 
                                         postLogin(
                                             provider = "kakao",
@@ -200,7 +226,7 @@ class LoginViewModel @Inject constructor(
     }
 
     // firebase fcm token 가져오기 및 저장
-    private fun getRegisterFcmToken(){
+    private fun getRegisterFcmToken() {
         // 등록된 토큰 가져오기
         FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
             if (!task.isSuccessful) {

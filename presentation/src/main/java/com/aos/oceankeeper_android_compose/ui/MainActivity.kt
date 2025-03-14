@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.aos.oceankeeper_android_compose.base.GlobalLoadingScreen
 import com.aos.oceankeeper_android_compose.base.GlobalToastScreen
 import com.aos.oceankeeper_android_compose.screen.login.LoginScreen
+import com.aos.oceankeeper_android_compose.screen.signup.complete.SignUpCompleteScreen
 import com.aos.oceankeeper_android_compose.screen.signup.input.SingUpInputScreen
 import com.aos.oceankeeper_android_compose.screen.splash.SplashScreen
 import com.aos.oceankeeper_android_compose.ui.theme.OceanKeeperAndroidComposeTheme
@@ -44,6 +45,16 @@ class MainActivity : ComponentActivity() {
                                 route = Screen.SignUpInputScreen.route
                             ) {
                                 SingUpInputScreen(navController)
+                            }
+                            composable(
+                                route = Screen.SignUpCompleteScreen.route
+                            ) {
+                                SignUpCompleteScreen(navController)
+                            }
+                            composable(
+                                route = Screen.HomeScreen.route
+                            ) {
+                                SignUpCompleteScreen(navController)
                             }
                         }
 

@@ -19,24 +19,5 @@ object ServiceModule {
     @Provides
     @Singleton
     fun provideOceanService(retrofit: Retrofit): OceanService = retrofit.create(OceanService::class.java)
-
-//    @Provides
-//    @Singleton
-//    fun provideNaverService(okHttpClient: OkHttpClient):  {
-//        val retrofit = Retrofit.Builder()
-//            .client(okHttpClient)
-//            .baseUrl("https://openapi.naver.com/v1/util/")
-//            .addCallAdapterFactory(CustomCallAdapterFactory())
-//            .addConverterFactory(
-//                Json {
-//                    isLenient = true
-//                    ignoreUnknownKeys = true // 지정되지 않은 key 값은 무시
-//                    coerceInputValues = true // default 값 설정
-//                    explicitNulls = false // 없는 필드는 null로 설정
-//                }.asConverterFactory("application/json".toMediaType())
-//            )
-//            .build()
-//        return retrofit.create(NaverShortenUrlService::class.java)
-//    }
 }
 

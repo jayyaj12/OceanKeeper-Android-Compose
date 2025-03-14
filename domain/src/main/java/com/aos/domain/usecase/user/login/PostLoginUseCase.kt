@@ -1,6 +1,6 @@
-package com.aos.domain.usecase
+package com.aos.domain.usecase.user.login
 
-import com.aos.domain.model.LoginModel
+import com.aos.domain.model.user.login.LoginModel
 import com.aos.domain.repository.UserRepository
 import javax.inject.Inject
 
