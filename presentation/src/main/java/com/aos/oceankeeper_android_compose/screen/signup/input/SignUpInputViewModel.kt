@@ -38,7 +38,7 @@ class SignUpInputViewModel @Inject constructor(
     private val postAuthSignUpUseCase: PostAuthSignUpUseCase,
 ) : ViewModel() {
 
-    var nickname by mutableStateOf("")
+    var nickname by mutableStateOf(UserInfoUtil.getUserInfo().nickname)
     var lineColor by mutableStateOf(R.color.blue_gray_100)
     var isVisibleWarning by mutableStateOf(false)
     var isVisibleProfileDialog by mutableStateOf(false)
@@ -54,22 +54,26 @@ class SignUpInputViewModel @Inject constructor(
 
     // 회원가입 완료 버튼 클릭
     fun onClickCompleteBtn() {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.IO) {
-                saveUriStringToFile()
-            }
-
-            if (profileFile != null) {
-                LoadingHandler.show()
-                postImageProfileUseCase(profileFile!!).onSuccess {
-                    postAuthSignUp(it.url)
-                }.onFailure {
-                    ToastHandler.show(it.message.toString(), ToastType.ERROR)
-                    LoadingHandler.hide()
+        if(checkNicknameIsNotEmpty()) {
+            viewModelScope.launch(Dispatchers.IO) {
+                withContext(Dispatchers.IO) {
+                    profileFile = FileUtil.saveUriStringToFile(context, _selectImageUri.value)
                 }
-            } else {
-                ToastHandler.show(text = "프로필 사진을 불러오는 실패하였습니다.\n프로필 사진을 다시 등록해주세요.", toastType = ToastType.ERROR)
+
+                if (profileFile != null) {
+                    LoadingHandler.show()
+                    postImageProfileUseCase(profileFile!!).onSuccess {
+                        postAuthSignUp(it.url)
+                    }.onFailure {
+                        ToastHandler.show(it.message.toString(), ToastType.ERROR)
+                        LoadingHandler.hide()
+                    }
+                } else {
+                    ToastHandler.show(text = "프로필 사진을 불러오는 실패하였습니다.\n프로필 사진을 다시 등록해주세요.", toastType = ToastType.ERROR)
+                }
             }
+        } else {
+            ToastHandler.show(text = "닉네임을 입력해주세요.", toastType = ToastType.ERROR)
         }
     }
 
@@ -80,7 +84,7 @@ class SignUpInputViewModel @Inject constructor(
             postAuthSignUpUseCase(
                 deviceToken = userInfo.deviceToken,
                 email = userInfo.email,
-                nickname = userInfo.nickname,
+                nickname = nickname,
                 profile = profileUrl,
                 provider = userInfo.provider,
                 providerId = userInfo.providerId,
@@ -96,9 +100,15 @@ class SignUpInputViewModel @Inject constructor(
 
     fun onNickValueChanged(text: String) {
         if (text.length <= 8) {
-            nickname = text
-            isVisibleWarning = false
-            lineColor = R.color.blue_gray_100
+            if(text.isNotBlank()) {
+                nickname = text
+                isVisibleWarning = false
+                lineColor = R.color.blue_gray_100
+            } else {
+                nickname = ""
+                isVisibleWarning = true
+                lineColor = R.color.worrying
+            }
         } else {
             isVisibleWarning = true
             lineColor = R.color.worrying
@@ -106,7 +116,6 @@ class SignUpInputViewModel @Inject constructor(
     }
 
     fun updateSelectedImage(uri: Uri?) {
-        Timber.e("uri $uri")
         uri?.let {
             _selectImageUri.value = it.toString()
         }
@@ -140,20 +149,7 @@ class SignUpInputViewModel @Inject constructor(
         }
     }
 
-    private suspend fun saveUriStringToFile() {
-        withContext(Dispatchers.IO) {
-            var file: File? = FileUtil.handleImageUri(context, Uri.parse(selectImageUri.value))
-
-            if (file != null) {
-                Timber.d("변환된 파일 경로: ${file!!.absolutePath}")
-                profileFile = file
-                Timber.e("profile $profileFile")
-            } else {
-                Timber.e("파일 변환 실패")
-                ToastHandler.show("프로필 사진 불러오기가 실패하였습니다", ToastType.ERROR)
-            }
-        }
+    private fun checkNicknameIsNotEmpty(): Boolean {
+        return nickname.isNotBlank()
     }
-
-
 }

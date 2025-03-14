@@ -82,4 +82,10 @@ object FileUtil {
             tempFile
         }
     }
+
+    suspend fun saveUriStringToFile(context: Context, url: String): File? {
+        return withContext(Dispatchers.IO) {
+            handleImageUri(context, Uri.parse(url))
+        }
+    }
 }

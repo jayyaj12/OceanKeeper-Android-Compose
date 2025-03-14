@@ -9,6 +9,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -276,10 +277,25 @@ fun InputUi(
 
         Button(modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp),
+            .height(48.dp)
+            .then(
+                if (viewModel.isVisibleWarning) {
+                    Modifier.border(
+                        1.dp,
+                        colorResource(R.color.primary_600),
+                        RoundedCornerShape(30.dp)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
             shape = RoundedCornerShape(30.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(R.color.primary_500)
+                containerColor = if (viewModel.isVisibleWarning) {
+                    colorResource(R.color.white)
+                } else {
+                    colorResource(R.color.primary_500)
+                }
             ),
             onClick = {
                 onClickBtn()
@@ -290,7 +306,11 @@ fun InputUi(
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 lineHeight = 28.sp,
-                color = Color.White
+                color = if (viewModel.isVisibleWarning) {
+                    colorResource(R.color.primary_600)
+                } else {
+                    Color.White
+                }
             )
         }
     }
