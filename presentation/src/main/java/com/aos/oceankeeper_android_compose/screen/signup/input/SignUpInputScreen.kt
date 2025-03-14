@@ -26,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,11 +84,14 @@ fun SingUpUi(navController: NavController, viewModel: SignUpInputViewModel = hil
             }
         }
 
-    if (viewModel.signUpNavigation) {
-        navController.navigate(
-            Screen.SignUpCompleteScreen.route
-        ) {
-            popUpTo(Screen.SignUpInputScreen.route) { inclusive = true }
+    val navState = viewModel.signUpNavigation
+    LaunchedEffect(navState) {
+        if (navState) {
+            navController.navigate(
+                Screen.SignUpCompleteScreen.route
+            ) {
+                popUpTo(Screen.SignUpInputScreen.route) { inclusive = true }
+            }
         }
     }
 

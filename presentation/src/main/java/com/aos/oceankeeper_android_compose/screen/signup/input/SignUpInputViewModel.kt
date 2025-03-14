@@ -52,7 +52,6 @@ class SignUpInputViewModel @Inject constructor(
     // 스크린 이동
     var signUpNavigation by mutableStateOf(false)
 
-
     // 회원가입 완료 버튼 클릭
     fun onClickCompleteBtn() {
         viewModelScope.launch(Dispatchers.IO) {
