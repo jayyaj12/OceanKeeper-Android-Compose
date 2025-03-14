@@ -66,7 +66,7 @@ fun LoginUi(navController: NavController, viewModel: LoginViewModel = hiltViewMo
             }
             // 홈화면으로 이동
             LoginNavigation.HOME -> {
-                navController.navigate(Screen.HomeScreen.route) {
+                navController.navigate(Screen.SignUpInputScreen.route) {
                     popUpTo(Screen.LoginScreen.route) { inclusive = true }
                 }
             }
