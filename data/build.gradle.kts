@@ -62,7 +62,7 @@ android {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":core"))
-
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation(libs.retrofit2.kotlinx.serialization.converter)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.hilt.android)

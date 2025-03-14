@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 앱의 캐시 디렉토리에 저장할 경우 -->
+    <cache-path name="cache" path="." />
+
+    <!-- 앱의 외부 저장소에 저장할 경우 -->
+    <external-files-path name="images" path="Pictures/" />
+</paths>

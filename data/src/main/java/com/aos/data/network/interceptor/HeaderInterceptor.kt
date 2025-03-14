@@ -8,7 +8,7 @@ import okhttp3.Response
 class HeaderInterceptor(): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
-        val originalUrl: HttpUrl = originalRequest.url()
+        val originalUrl: HttpUrl = originalRequest.url
 
         val newUrl = originalUrl.newBuilder()
 //            .addQueryParameter("key", BuildConfig.MOVIE_API_KEY)

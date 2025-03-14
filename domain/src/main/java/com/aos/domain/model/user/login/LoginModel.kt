@@ -1,4 +1,4 @@
-package com.aos.domain.model
+package com.aos.domain.model.user.login
 
 data class LoginModel(
     val token: Token,

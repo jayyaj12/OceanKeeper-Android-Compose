@@ -85,6 +85,8 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    // coil 이미지 라이브러리 
+    implementation("io.coil-kt:coil-compose:2.6.0")
     // 네이버 로그인
 //    implementation("com.navercorp.nid:oauth:5.10.0") // jdk 11
     implementation("com.navercorp.nid:oauth-jdk8:5.10.0") // jdk 8
@@ -95,6 +97,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-messaging:23.4.1")
     implementation("com.google.firebase:firebase-analytics:21.5.1")
+
     // 카카오로그인
     implementation("com.kakao.sdk:v2-all:2.20.6") // 전체 모듈 설치, 2.11.0 버전부터 지원
     implementation("com.kakao.sdk:v2-user:2.20.6") // 카카오 로그인 API 모듈
