@@ -1,7 +1,7 @@
 package com.aos.domain.usecase.user.login
 
 import com.aos.domain.model.user.login.LoginModel
-import com.aos.domain.repository.UserRepository
+import com.aos.domain.repository.user.UserRepository
 import javax.inject.Inject
 
 class PostLoginUseCase @Inject constructor(

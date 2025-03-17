@@ -1,5 +1,6 @@
 package com.aos.oceankeeper_android_compose.module
 
+import com.aos.data.datasource.activity.ActivityRemoteDataSourceImpl
 import com.aos.data.datasource.user.UserRemoteDataSource
 import com.aos.data.datasource.user.UserRemoteDataSourceImpl
 import com.aos.data.network.api.OceanService
@@ -17,6 +18,12 @@ object DataSourceModule {
     @Singleton
     fun provideUserRemoteDataSourceImpl(oceanService: OceanService): UserRemoteDataSourceImpl {
         return UserRemoteDataSourceImpl(oceanService)
+    }
+
+    @Provides
+    @Singleton
+    fun provideActivityRemoteDataSourceImpl(oceanService: OceanService): ActivityRemoteDataSourceImpl {
+        return ActivityRemoteDataSourceImpl(oceanService)
     }
 
 }

@@ -1,4 +1,4 @@
-package com.aos.domain.repository
+package com.aos.domain.repository.user
 
 import com.aos.domain.model.user.login.LoginModel
 import com.aos.domain.model.user.signup.AuthSignUpModel

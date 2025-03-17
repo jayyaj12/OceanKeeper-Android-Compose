@@ -1,7 +1,7 @@
 package com.aos.domain.usecase.user.signup
 
 import com.aos.domain.model.user.signup.AuthSignUpModel
-import com.aos.domain.repository.UserRepository
+import com.aos.domain.repository.user.UserRepository
 import javax.inject.Inject
 
 class PostAuthSignUpUseCase @Inject constructor(private val userRepository: UserRepository) {

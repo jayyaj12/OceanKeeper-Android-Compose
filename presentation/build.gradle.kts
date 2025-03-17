@@ -85,6 +85,9 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    // 페이지 인디케이터 추가
+    implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
+
     // coil 이미지 라이브러리 
     implementation("io.coil-kt:coil-compose:2.6.0")
     // 네이버 로그인

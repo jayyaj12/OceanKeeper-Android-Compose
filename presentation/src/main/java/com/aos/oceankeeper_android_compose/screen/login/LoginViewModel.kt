@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aos.core.util.JsonUtil
 import com.aos.core.util.NetworkUtil
+import com.aos.core.util.TokenUtil
 import com.aos.core.util.UserInfoUtil
 import com.aos.domain.usecase.user.login.PostLoginUseCase
 import com.aos.oceankeeper_android_compose.base.LoadingHandler
@@ -50,6 +51,8 @@ class LoginViewModel @Inject constructor(
     private fun postLogin(provider: String, providerId: String) {
         viewModelScope.launch {
             postLoginUseCase(deviceToken, provider, providerId).onSuccess {
+                UserInfoUtil.setUserId(it.user.userId)
+                TokenUtil.setToken(it.token.accessToken, it.token.refreshToken)
                 LoadingHandler.hide()
                 _loginNavigation.value = LoginNavigation.HOME
             }.onFailure {
