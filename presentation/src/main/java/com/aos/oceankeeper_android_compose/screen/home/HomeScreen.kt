@@ -1,5 +1,7 @@
 package com.aos.oceankeeper_android_compose.screen.home
 
+import android.os.Handler
+import android.os.Looper
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -53,6 +55,7 @@ import androidx.navigation.NavController
 import com.aos.domain.model.activity.home.Activity
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
 import com.letspl.oceankeeper.R
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
@@ -117,6 +120,9 @@ fun HomeScreenUi(
                 },
                 onClickClose = {
                     viewModel.hideCategory()
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        viewModel.revertCategoryIndex()
+                    }, 300)
                 })
         }
     }

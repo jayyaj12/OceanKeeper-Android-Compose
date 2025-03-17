@@ -34,6 +34,8 @@ open class HomeViewModel @Inject constructor(
     // 카테고리
     private var _category = mutableStateOf("지역")
     val category: State<String> = _category
+    private var _categoryIndex = mutableStateOf(0)
+    val categoryIndex: State<Int> = _categoryIndex
 
     val categories = listOf("서해번쩍", "동해번쩍", "남해번쩍", "제주번쩍", "기타")
 
@@ -62,6 +64,7 @@ open class HomeViewModel @Inject constructor(
         }
     }
     fun setCategory(index: Int) {
+        _categoryIndex.value = index
         _category.value = categories[index - 1]
     }
 
@@ -75,6 +78,10 @@ open class HomeViewModel @Inject constructor(
 
     fun hideCategory() {
         _isVisibleCategory.value = false
+    }
+
+    fun revertCategoryIndex() {
+        _selectCategoryIndex.value = categoryIndex.value
     }
 
 }
