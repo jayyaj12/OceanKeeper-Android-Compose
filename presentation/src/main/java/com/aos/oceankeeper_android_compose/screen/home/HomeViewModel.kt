@@ -25,25 +25,23 @@ open class HomeViewModel @Inject constructor(
     private val getActivityScheduleUseCase: GetActivityScheduleUseCase
 ): ViewModel() {
 
-    private var _activityScheduleList = mutableStateListOf<Activity>(
-            Activity(
-                1,
-                "2",
-                "제주도 금능ㄴ해면sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss",
-                "2023.03.20",
-                "금능해변 플로깅 프로젝트"
-            ),
-            Activity(1, "2", "제주도 금능ㄴ해면", "2023.03.20", "금능해변 플로깅 프로젝트2"),
-            Activity(1, "2", "제주도 금능ㄴ해면", "2023.03.20", "금능해변 플로깅 프로젝트3"))
+    private var _activityScheduleList = mutableStateListOf<Activity>()
     val activityScheduleList: SnapshotStateList<Activity> = _activityScheduleList
-    // 탭
+
     val tabs = listOf("전체", "진행예정 활동", "종료된 활동")
     var selectedTabIndex by mutableStateOf(0)
+
     // 카테고리
-    var category = mutableStateOf("지역")
+    private var _category = mutableStateOf("지역")
+    val category: State<String> = _category
+
     val categories = listOf("서해번쩍", "동해번쩍", "남해번쩍", "제주번쩍", "기타")
-    private var selectCategoryIndex = mutableStateOf(0)
-    var isVisibleCategory = mutableStateOf( false )
+
+    private var _selectCategoryIndex = mutableStateOf(0)
+    val selectCategoryIndex: State<Int> = _selectCategoryIndex
+
+    private var _isVisibleCategory = mutableStateOf(false)
+    val isVisibleCategory: State<Boolean> = _isVisibleCategory
 
     init {
         getActivitySchedule()
@@ -63,38 +61,20 @@ open class HomeViewModel @Inject constructor(
             }
         }
     }
-
-    fun selectCategory(index: Int): String {
-        category.value = categories[index]
-        return category.value
+    fun setCategory(index: Int) {
+        _category.value = categories[index - 1]
     }
 
-    fun getCategoryTitle(index: Int): String {
-        return categories[index]
-    }
-
-    fun getCategory(): String {
-        return category.value
-    }
-
-    fun getSelectCategoryIndex(): Int {
-        return selectCategoryIndex.value
-    }
-
-    fun setSelectCategoryIndex(index: Int) {
-        selectCategoryIndex.value = index
+    fun setCategoryIndex(index: Int) {
+        _selectCategoryIndex.value = index
     }
 
     fun showCategory() {
-        isVisibleCategory.value = true
+        _isVisibleCategory.value = true
     }
 
     fun hideCategory() {
-        isVisibleCategory.value = false
-    }
-
-    fun isVisibleCategory(): Boolean {
-        return isVisibleCategory.value
+        _isVisibleCategory.value = false
     }
 
 }

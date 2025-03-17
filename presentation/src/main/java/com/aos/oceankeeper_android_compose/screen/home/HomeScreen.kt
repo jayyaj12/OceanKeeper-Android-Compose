@@ -100,18 +100,19 @@ fun HomeScreenUi(
                     .padding(top = 14.dp)
             )
             TabUi(viewModel)
-            FilterUi(viewModel.getCategory(), onClickCategory = {
+            FilterUi(viewModel.category.value, onClickCategory = {
                 viewModel.showCategory()
             }, onClickType = {
 
             })
         }
 
-        AnimatedVisibility( modifier = Modifier.align(Alignment.BottomCenter), visible = viewModel.isVisibleCategory(), enter = fadeIn(tween(300)), exit = fadeOut(tween(300))) {
+        AnimatedVisibility( modifier = Modifier.align(Alignment.BottomCenter), visible = viewModel.isVisibleCategory.value, enter = fadeIn(tween(300)), exit = fadeOut(tween(300))) {
             CategoryUi(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 viewModel = viewModel,
                 onClickConfirm = {
+                    viewModel.setCategory(viewModel.selectCategoryIndex.value)
                     viewModel.hideCategory()
                 },
                 onClickClose = {
@@ -418,7 +419,11 @@ fun FilterUi(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
                 lineHeight = 18.sp,
-                color = colorResource(R.color.primary_600)
+                color = if(category == "지역") {
+                    colorResource(R.color.gray_700)
+                } else {
+                    colorResource(R.color.primary_600)
+                }
             )
             Image(
                 painter = painterResource(R.drawable.icon_drop_down),
@@ -435,7 +440,7 @@ fun FilterUi(
 fun CategoryUi(
     viewModel: HomeViewModel,
     modifier: Modifier = Modifier,
-    onClickConfirm: (String) -> Unit,
+    onClickConfirm: () -> Unit,
     onClickClose: () -> Unit,
 ) {
     Box(
@@ -484,13 +489,13 @@ fun CategoryUi(
                 color = colorResource(R.color.gray_300)
             )
 
-            for (i in 1 until 6) {
+            viewModel.categories.forEachIndexed { index, category ->
                 CategoryItemUi(
-                    selectCategoryIndex = viewModel.getSelectCategoryIndex(),
-                    selectedValue = i,
-                    title = viewModel.getCategoryTitle(i - 1),
+                    selectCategoryIndex = viewModel.selectCategoryIndex.value,
+                    selectedValue = index + 1,
+                    title = category,
                     onClickItem = {
-                        viewModel.setSelectCategoryIndex(it)
+                        viewModel.setCategoryIndex(it)
                     })
             }
 
@@ -503,7 +508,7 @@ fun CategoryUi(
 
             Button(
                 onClick = {
-                    onClickConfirm(viewModel.selectCategory(viewModel.getSelectCategoryIndex() - 1))
+                    onClickConfirm()
                 },
                 modifier = Modifier
                     .padding(top = 10.dp, start = 16.dp, end = 16.dp, bottom = 10.dp)
