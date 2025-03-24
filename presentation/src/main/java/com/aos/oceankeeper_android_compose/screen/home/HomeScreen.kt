@@ -1,11 +1,10 @@
 package com.aos.oceankeeper_android_compose.screen.home
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -14,14 +13,19 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
@@ -30,6 +34,7 @@ import androidx.compose.material.Divider
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
@@ -41,6 +46,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,13 +56,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.paging.compose.collectAsLazyPagingItems
+import coil.compose.rememberAsyncImagePainter
+import coil.request.CachePolicy
+import coil.request.ImageRequest
+import coil.transform.RoundedCornersTransformation
 import com.aos.domain.model.activity.home.Activity
+import com.aos.domain.model.activity.home.ActivityItem
 import com.aos.oceankeeper_android_compose.ui.theme.Pretendard
 import com.letspl.oceankeeper.R
-import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(
@@ -71,59 +84,139 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenUi(
     navController: NavController,
-    viewModel: HomeViewModel = hiltViewModel(), modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier,
 ) {
+    val activityItems = viewModel.activityPager.collectAsLazyPagingItems()
+
     Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            TopAppBarUi(onClickNotification = {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+        ) {
+            item {
+                TopAppBarUi(
+                    onClickNotification = { /* TODO */ },
+                    onClickSetting = { /* TODO */ },
+                    modifier = modifier.fillMaxWidth()
+                )
+            }
 
-            }, onClickSetting = {
+            item {
+                ScheduleUi(viewModel.activityScheduleList)
+            }
 
-            }, modifier = modifier.fillMaxWidth())
-            ScheduleUi(viewModel.activityScheduleList)
-            MenuUi(
-                modifier = Modifier.padding(top = 16.dp, start = 42.dp, end = 42.dp),
-                onClickNotice = {
+            item {
+                MenuUi(
+                    modifier = Modifier.padding(top = 16.dp, start = 42.dp, end = 42.dp),
+                    onClickNotice = { /* TODO */ },
+                    onClickGuide = { /* TODO */ },
+                    onClickTerms = { /* TODO */ }
+                )
+            }
 
-                },
-                onClickGuide = {
+            item {
+                Spacer(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(10.dp)
+                        .background(colorResource(R.color.gray_200))
+                        .padding(top = 14.dp)
+                )
+            }
 
-                },
-                onClickTerms = {
+            // ✅ Sticky Header - Tab 고정
+            stickyHeader {
+                Surface(
+                    color = Color.White,
+                    tonalElevation = 4.dp,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .zIndex(1f)
+                ) {
+                    TabUi(viewModel)
+                }
+            }
 
-                })
-            Spacer(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .background(colorResource(R.color.gray_200))
-                    .padding(top = 14.dp)
-            )
-            TabUi(viewModel)
-            FilterUi(viewModel.category.value, onClickCategory = {
-                viewModel.showCategory()
-            }, onClickType = {
+            item {
+                FilterUi(
+                    category = viewModel.category.value,
+                    type = viewModel.type.value,
+                    onClickCategory = {
+                        viewModel.hideType()
+                        viewModel.showCategory()
+                    },
+                    onClickType = {
+                        viewModel.hideCategory()
+                        viewModel.showType()
+                    }
+                )
+            }
 
-            })
+            item { Spacer(modifier = Modifier.size(24.dp)) }
+
+            item {
+                LazyVerticalGrid(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 2000.dp) // ✅ 높이 제한 필수
+                        .padding(horizontal = 16.dp),
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(0.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(activityItems.itemCount) { index ->
+                        val item = activityItems[index]
+                        if (item != null) {
+                            ActivityItem(item = item)
+                        }
+                    }
+                }
+            }
         }
 
-        AnimatedVisibility( modifier = Modifier.align(Alignment.BottomCenter), visible = viewModel.isVisibleCategory.value, enter = fadeIn(tween(300)), exit = fadeOut(tween(300))) {
-            CategoryUi(
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            visible = viewModel.isVisibleCategory.value,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(300))
+        ) {
+            FilterItem(
                 modifier = Modifier.align(Alignment.BottomCenter),
-                viewModel = viewModel,
+                title = "지역",
+                selectIndex = viewModel.selectCategoryIndex.value,
+                itemList = viewModel.categories,
+                onClickItem = { viewModel.setCategoryIndex(it) },
                 onClickConfirm = {
                     viewModel.setCategory(viewModel.selectCategoryIndex.value)
                     viewModel.hideCategory()
                 },
-                onClickClose = {
-                    viewModel.hideCategory()
-                    Handler(Looper.getMainLooper()).postDelayed({
-                        viewModel.revertCategoryIndex()
-                    }, 300)
-                })
+                onClickClose = { viewModel.hideCategory() }
+            )
+        }
+
+        AnimatedVisibility(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            visible = viewModel.isVisibleType.value,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(300))
+        ) {
+            FilterItem(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                title = "종류",
+                selectIndex = viewModel.selectTypeIndex.value,
+                itemList = viewModel.types,
+                onClickItem = { viewModel.setTypeIndex(it) },
+                onClickConfirm = {
+                    viewModel.setType(viewModel.selectTypeIndex.value)
+                    viewModel.hideType()
+                },
+                onClickClose = { viewModel.hideType() }
+            )
         }
     }
 }
@@ -399,6 +492,7 @@ fun TabUi(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
 @Composable
 fun FilterUi(
     category: String,
+    type: String,
     modifier: Modifier = Modifier,
     onClickCategory: () -> Unit,
     onClickType: () -> Unit,
@@ -425,7 +519,43 @@ fun FilterUi(
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 12.sp,
                 lineHeight = 18.sp,
-                color = if(category == "지역") {
+                color = if (category == "지역") {
+                    colorResource(R.color.gray_700)
+                } else {
+                    colorResource(R.color.primary_600)
+                }
+            )
+            Image(
+                painter = painterResource(R.drawable.icon_drop_down),
+                contentDescription = "드롭다운 아이콘",
+                modifier = Modifier
+                    .padding(start = 9.dp, end = 12.dp)
+                    .size(10.dp, 5.dp)
+            )
+        }
+
+        Row(
+            modifier = Modifier
+                .padding(top = 8.dp, start = 10.dp)
+                .height(32.dp)
+                .border(1.dp, Color("#E6E6E6".toColorInt()), RoundedCornerShape(12.dp))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    onClickType()
+                },
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                modifier = Modifier.padding(start = 12.dp, top = 7.dp, bottom = 7.dp),
+                text = type,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                color = if (type == "종류") {
                     colorResource(R.color.gray_700)
                 } else {
                     colorResource(R.color.primary_600)
@@ -443,16 +573,19 @@ fun FilterUi(
 }
 
 @Composable
-fun CategoryUi(
-    viewModel: HomeViewModel,
+fun FilterItem(
     modifier: Modifier = Modifier,
+    title: String,
+    selectIndex: Int,
+    itemList: List<String>,
+    onClickItem: (Int) -> Unit,
     onClickConfirm: () -> Unit,
     onClickClose: () -> Unit,
 ) {
     Box(
         modifier = modifier
-            .height(322.dp)
-            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
+            .background(Color.White),
         contentAlignment = Alignment.Center
     ) {
         Column {
@@ -471,7 +604,7 @@ fun CategoryUi(
                 Text(
                     modifier = modifier.fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = "지역",
+                    text = title,
                     fontFamily = Pretendard,
                     fontWeight = FontWeight.SemiBold,
                     color = colorResource(R.color.gray_900),
@@ -495,13 +628,13 @@ fun CategoryUi(
                 color = colorResource(R.color.gray_300)
             )
 
-            viewModel.categories.forEachIndexed { index, category ->
-                CategoryItemUi(
-                    selectCategoryIndex = viewModel.selectCategoryIndex.value,
+            itemList.forEachIndexed { index, type ->
+                BottomSheetItemUi(
+                    selectIndex = selectIndex,
                     selectedValue = index + 1,
-                    title = category,
+                    title = type,
                     onClickItem = {
-                        viewModel.setCategoryIndex(it)
+                        onClickItem(it)
                     })
             }
 
@@ -539,8 +672,149 @@ fun CategoryUi(
 }
 
 @Composable
-fun CategoryItemUi(
-    selectCategoryIndex: Int,
+fun ActivityItem(
+    modifier: Modifier = Modifier,
+    item: ActivityItem,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(117.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = Modifier.clip(RoundedCornerShape(8.dp)),
+                painter = rememberAsyncImagePainter(
+                    ImageRequest.Builder(LocalContext.current)
+                        .data(R.drawable.activity_placeholder)
+                        .placeholder(R.drawable.activity_placeholder)
+                        .transformations(RoundedCornersTransformation(8f))
+                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .crossfade(true).build(),
+                ), contentDescription = "활동 썸네일 이미지",
+                contentScale = ContentScale.Crop
+            )
+
+            Box(
+                modifier = Modifier
+                    .padding(end = 8.dp, bottom = 10.dp)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Row(
+                    modifier = Modifier
+                        .padding(horizontal = 4.dp)
+                        .height(20.dp)
+                        .clip(RoundedCornerShape(4.dp))
+                        .background(Color("#99131313".toColorInt())),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Image(
+                        painter = painterResource(R.drawable.icon_person),
+                        modifier = Modifier.size(14.dp),
+                        contentDescription = "인원 아이콘"
+                    )
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Text(
+                        modifier = Modifier.wrapContentHeight(align = Alignment.CenterVertically),
+                        text = "${item.participants}/${item.quota}명",
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        lineHeight = 18.sp,
+                        fontFamily = Pretendard,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                }
+            }
+        }
+
+        Text(
+            modifier = Modifier.padding(vertical = 8.dp),
+            text = item.hostNickname,
+            fontSize = 12.sp,
+            fontFamily = Pretendard,
+            fontWeight = FontWeight.Medium,
+            color = colorResource(R.color.blue_gray_600),
+            lineHeight = 18.sp
+        )
+        Text(
+            modifier = Modifier.padding(bottom = 6.dp),
+            text = item.title,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            color = colorResource(R.color.gray_900),
+            fontSize = 14.sp,
+            fontFamily = Pretendard,
+            fontWeight = FontWeight.Bold,
+            lineHeight = 20.sp
+        )
+
+        Row {
+            Image(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(R.drawable.icon_location_home),
+                contentDescription = "위치 아이콘"
+            )
+            Spacer(modifier = Modifier.size(2.dp))
+            Text(
+                text = item.location,
+                color = colorResource(R.color.blue_gray_600),
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Spacer(modifier = Modifier.size(6.dp))
+        Row {
+            Image(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(R.drawable.icon_calendar_home),
+                contentDescription = "캘린더 아이콘"
+            )
+            Spacer(modifier = Modifier.size(2.dp))
+            Text(
+                text = "${item.recruitStartAt}~${item.recruitEndAt}",
+                color = colorResource(R.color.blue_gray_600),
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        Spacer(modifier = Modifier.size(6.dp))
+        Row {
+            Image(
+                modifier = Modifier.size(16.dp),
+                painter = painterResource(R.drawable.icon_start_time),
+                contentDescription = "일정 아이콘"
+            )
+            Spacer(modifier = Modifier.size(2.dp))
+            Text(
+                text = "${item.startAt}",
+                color = colorResource(R.color.blue_gray_600),
+                fontSize = 12.sp,
+                lineHeight = 18.sp,
+                fontFamily = Pretendard,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+    }
+}
+
+@Composable
+fun BottomSheetItemUi(
+    selectIndex: Int,
     selectedValue: Int,
     title: String,
     onClickItem: (Int) -> Unit,
@@ -565,14 +839,14 @@ fun CategoryItemUi(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             lineHeight = 20.sp,
-            color = if (selectCategoryIndex == selectedValue) {
+            color = if (selectIndex == selectedValue) {
                 colorResource(R.color.primary_500)
             } else {
                 colorResource(R.color.gray_500)
             }
         )
         Image(
-            painter = if (selectCategoryIndex == selectedValue) {
+            painter = if (selectIndex == selectedValue) {
                 painterResource(R.drawable.icon_category_checked)
             } else {
                 painterResource(R.drawable.icon_category_not_checked)

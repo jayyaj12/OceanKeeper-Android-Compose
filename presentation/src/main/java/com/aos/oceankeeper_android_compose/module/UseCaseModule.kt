@@ -3,6 +3,7 @@ package com.aos.oceankeeper_android_compose.module
 import com.aos.domain.repository.activity.ActivityRepository
 import com.aos.domain.repository.user.UserRepository
 import com.aos.domain.usecase.activity.GetActivityScheduleUseCase
+import com.aos.domain.usecase.activity.GetActivityUseCase
 import com.aos.domain.usecase.user.signup.PostImageProfileUseCase
 import com.aos.domain.usecase.user.login.PostLoginUseCase
 import com.aos.domain.usecase.user.signup.PostAuthSignUpUseCase
@@ -38,6 +39,12 @@ object UseCaseModule {
     @Singleton
     fun provideGetActivityScheduleUseCase(activityRepository: ActivityRepository): GetActivityScheduleUseCase {
         return GetActivityScheduleUseCase(activityRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetActivityUseCase(activityRepository: ActivityRepository): GetActivityUseCase {
+        return GetActivityUseCase(activityRepository)
     }
 
 }

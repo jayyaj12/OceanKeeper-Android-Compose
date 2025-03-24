@@ -85,6 +85,8 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
 
+    // 페이징 추가
+    implementation("androidx.paging:paging-compose:3.3.2")
     // 페이지 인디케이터 추가
     implementation("com.google.accompanist:accompanist-pager-indicators:0.30.1")
 
