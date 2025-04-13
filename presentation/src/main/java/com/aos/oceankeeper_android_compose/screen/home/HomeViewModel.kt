@@ -36,6 +36,7 @@ open class HomeViewModel @Inject constructor(
     val activityScheduleList: SnapshotStateList<Activity> = _activityScheduleList
 
     val tabs = listOf("전체", "진행예정 활동", "종료된 활동")
+    val tabsEng = listOf("open", "recruitment-closed", "closed")
     var selectedTabIndex by mutableStateOf(0)
 
     // 활동
@@ -43,13 +44,25 @@ open class HomeViewModel @Inject constructor(
         config = PagingConfig(pageSize = 10),
         pagingSourceFactory = {
             ActivityPagingSource(
-                getActivityUseCase = getActivityUseCase
+                getActivityUseCase = getActivityUseCase,
+                garbageCategory = if(category.value == "종류") {
+                    null
+                } else {
+                    typesEng[_typeIndex.value]
+                },
+                locationTag = if(category.value == "지역") {
+                    null
+                } else {
+                    categoriesEng[_categoryIndex.value]
+                },
+                status = tabsEng[selectedTabIndex]
             )
         }
     ).flow.cachedIn(viewModelScope)
 
     // 카테고리
     val categories = listOf("서해번쩍", "동해번쩍", "남해번쩍", "제주번쩍", "기타")
+    val categoriesEng = listOf("WEST", "EAST", "SOUTH", "JEJU", "ETC")
     private var _category = mutableStateOf("지역")
     val category: State<String> = _category
     private var _categoryIndex = mutableStateOf(0)
@@ -61,6 +74,7 @@ open class HomeViewModel @Inject constructor(
 
     // 종류
     val types = listOf("연안쓰레기", "부유쓰레기", "침적쓰레기", "기타")
+    val typesEng = listOf("COASTAL", "FLOATING", "DEPOSITED", "ETC")
     private var _type = mutableStateOf("종류")
     val type: State<String> = _type
     private var _typeIndex = mutableStateOf(0)

@@ -137,7 +137,10 @@ fun HomeScreenUi(
                         .fillMaxWidth()
                         .zIndex(1f)
                 ) {
-                    TabUi(viewModel)
+                    TabUi(viewModel) { index ->
+                        viewModel.selectedTabIndex = index
+                        activityItems.refresh()
+                    }
                 }
             }
 
@@ -440,7 +443,7 @@ fun MenuUi(
 
 
 @Composable
-fun TabUi(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
+fun TabUi(viewModel: HomeViewModel, modifier: Modifier = Modifier, onClickTab: (Int) -> Unit) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -462,7 +465,7 @@ fun TabUi(viewModel: HomeViewModel, modifier: Modifier = Modifier) {
             viewModel.tabs.forEachIndexed { index, s ->
                 Tab(
                     selected = viewModel.selectedTabIndex == index,
-                    onClick = { viewModel.selectedTabIndex = index },
+                    onClick = { onClickTab(index)},
                     modifier = Modifier
                         .weight(1f)
                         .height(40.dp)

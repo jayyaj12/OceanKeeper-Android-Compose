@@ -6,7 +6,7 @@ import com.aos.domain.model.activity.home.ActivityItem
 import com.aos.domain.usecase.activity.GetActivityUseCase
 import javax.inject.Inject
 
-class ActivityPagingSource(private val getActivityUseCase: GetActivityUseCase) : PagingSource<Int, ActivityItem>() {
+class ActivityPagingSource(private val getActivityUseCase: GetActivityUseCase, private val garbageCategory: String?, private val locationTag: String?, private val status: String?) : PagingSource<Int, ActivityItem>() {
     private var activityId: String? = null
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, ActivityItem> {
@@ -15,10 +15,10 @@ class ActivityPagingSource(private val getActivityUseCase: GetActivityUseCase) :
         return try {
             val result = getActivityUseCase(
                 activityId = activityId,
-                garbageCategory = null,
-                locationTag = null,
+                garbageCategory = garbageCategory,
+                locationTag = locationTag,
                 size = 5,
-                status = null
+                status = status
             )
 
             result.fold(
