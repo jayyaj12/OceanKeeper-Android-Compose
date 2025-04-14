@@ -159,7 +159,12 @@ fun HomeScreenUi(
                 )
             }
 
-            item { Spacer(modifier = Modifier.size(24.dp)) }
+            item {
+                if (activityItems.itemCount == 0) {
+                    Spacer(modifier = Modifier.size(18.dp))
+                } else {
+                    Spacer(modifier = Modifier.size(24.dp))
+                }}
 
             item {
                 LazyVerticalGrid(
@@ -172,12 +177,18 @@ fun HomeScreenUi(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(activityItems.itemCount) { index ->
+                    items(count = activityItems.itemCount) { index ->
                         val item = activityItems[index]
                         if (item != null) {
                             ActivityItem(item = item)
                         }
                     }
+                }
+            }
+
+            item {
+                if (activityItems.itemCount == 0) {
+                    EmptyActivitiesUi()
                 }
             }
         }
@@ -197,6 +208,7 @@ fun HomeScreenUi(
                 onClickConfirm = {
                     viewModel.setCategory(viewModel.selectCategoryIndex.value)
                     viewModel.hideCategory()
+                    activityItems.refresh()
                 },
                 onClickClose = { viewModel.hideCategory() }
             )
@@ -217,6 +229,7 @@ fun HomeScreenUi(
                 onClickConfirm = {
                     viewModel.setType(viewModel.selectTypeIndex.value)
                     viewModel.hideType()
+                    activityItems.refresh()
                 },
                 onClickClose = { viewModel.hideType() }
             )
@@ -465,7 +478,7 @@ fun TabUi(viewModel: HomeViewModel, modifier: Modifier = Modifier, onClickTab: (
             viewModel.tabs.forEachIndexed { index, s ->
                 Tab(
                     selected = viewModel.selectedTabIndex == index,
-                    onClick = { onClickTab(index)},
+                    onClick = { onClickTab(index) },
                     modifier = Modifier
                         .weight(1f)
                         .height(40.dp)
@@ -693,7 +706,8 @@ fun ActivityItem(
                         .data(R.drawable.activity_placeholder)
                         .placeholder(R.drawable.activity_placeholder)
                         .transformations(RoundedCornersTransformation(8f))
-                        .memoryCachePolicy(CachePolicy.DISABLED)
+                        .memoryCachePolicy(CachePolicy.ENABLED)
+                        .diskCachePolicy(CachePolicy.ENABLED)
                         .crossfade(true).build(),
                 ), contentDescription = "활동 썸네일 이미지",
                 contentScale = ContentScale.Crop
@@ -812,6 +826,34 @@ fun ActivityItem(
                 overflow = TextOverflow.Ellipsis
             )
         }
+    }
+}
+
+@Composable
+fun EmptyActivitiesUi(modifier: Modifier = Modifier) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(colorResource(R.color.blue_gray_50)),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.size(80.dp))
+
+        Text(
+            text = "조건에 맞는 프로젝트가 없습니다.",
+            fontSize = 14.sp,
+            fontFamily = Pretendard,
+            fontWeight = FontWeight.Medium,
+            lineHeight = 20.sp,
+            color = colorResource(R.color.blue_gray_500)
+        )
+
+        Spacer(modifier = Modifier.size(16.dp))
+
+        Image(
+            painter = painterResource(R.drawable.icon_empty_activity),
+            contentDescription = "활동 비어있음 아이콘"
+        )
     }
 }
 

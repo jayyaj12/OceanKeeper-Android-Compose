@@ -50,7 +50,7 @@ interface OceanService {
     @GET("activity")
     suspend fun getActivity(
         @Query("activity-id") activityId: String?,
-        @Query("garbage-Category") garbageCategory: String?,
+        @Query("garbage-category") garbageCategory: String?,
         @Query("location-tag") locationTag: String?,
         @Query("size") size: Int?,
         @Query("status") status: String?

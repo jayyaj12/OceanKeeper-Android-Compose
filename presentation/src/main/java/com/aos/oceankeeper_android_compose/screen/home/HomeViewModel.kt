@@ -45,15 +45,15 @@ open class HomeViewModel @Inject constructor(
         pagingSourceFactory = {
             ActivityPagingSource(
                 getActivityUseCase = getActivityUseCase,
-                garbageCategory = if(category.value == "종류") {
+                garbageCategory = if(type.value == "종류") {
                     null
                 } else {
-                    typesEng[_typeIndex.value]
+                    typesEng[_typeIndex.value - 1]
                 },
                 locationTag = if(category.value == "지역") {
                     null
                 } else {
-                    categoriesEng[_categoryIndex.value]
+                    categoriesEng[_categoryIndex.value - 1]
                 },
                 status = tabsEng[selectedTabIndex]
             )

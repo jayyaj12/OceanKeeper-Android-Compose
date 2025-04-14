@@ -4,6 +4,7 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.aos.domain.model.activity.home.ActivityItem
 import com.aos.domain.usecase.activity.GetActivityUseCase
+import timber.log.Timber
 import javax.inject.Inject
 
 class ActivityPagingSource(private val getActivityUseCase: GetActivityUseCase, private val garbageCategory: String?, private val locationTag: String?, private val status: String?) : PagingSource<Int, ActivityItem>() {
@@ -17,18 +18,21 @@ class ActivityPagingSource(private val getActivityUseCase: GetActivityUseCase, p
                 activityId = activityId,
                 garbageCategory = garbageCategory,
                 locationTag = locationTag,
-                size = 5,
+                size = 4,
                 status = status
             )
 
             result.fold(
                 onSuccess = {
+                    Timber.e("it $it")
                     activityId = it.activityList.lastOrNull()?.activityId
                     val data = it.activityList
                     val isLast = it.isLast
+                    Timber.e("page $page")
+                    Timber.e("nextKey ${if (isLast) null else page + 1}")
                     LoadResult.Page(
                         data = data,
-                        prevKey = if (page == 1) null else page - 1,
+                        prevKey = null,
                         nextKey = if (isLast) null else page + 1
                     )
                 },
