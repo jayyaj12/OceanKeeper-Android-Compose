@@ -84,7 +84,7 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":data"))
     implementation(project(":domain"))
-
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     // 페이징 추가
     implementation("androidx.paging:paging-compose:3.3.2")
     // 페이지 인디케이터 추가

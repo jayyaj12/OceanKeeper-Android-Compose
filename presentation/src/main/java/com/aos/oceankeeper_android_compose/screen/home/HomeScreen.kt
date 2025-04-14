@@ -57,6 +57,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -164,7 +165,8 @@ fun HomeScreenUi(
                     Spacer(modifier = Modifier.size(18.dp))
                 } else {
                     Spacer(modifier = Modifier.size(24.dp))
-                }}
+                }
+            }
 
             item {
                 LazyVerticalGrid(
@@ -187,8 +189,10 @@ fun HomeScreenUi(
             }
 
             item {
-                if (activityItems.itemCount == 0) {
-                    EmptyActivitiesUi()
+                Column {
+                    if (activityItems.itemCount == 0) {
+                        EmptyActivitiesUi()
+                    }
                 }
             }
         }
@@ -834,6 +838,7 @@ fun EmptyActivitiesUi(modifier: Modifier = Modifier) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .height(420.dp)
             .background(colorResource(R.color.blue_gray_50)),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
