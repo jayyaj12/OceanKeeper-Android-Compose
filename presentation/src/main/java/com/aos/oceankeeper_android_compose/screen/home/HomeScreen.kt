@@ -197,6 +197,10 @@ fun HomeScreenUi(
             }
         }
 
+        IconAddActivityUi {
+            // 활동 추가 페이지로 이동
+        }
+
         AnimatedVisibility(
             modifier = Modifier.align(Alignment.BottomCenter),
             visible = viewModel.isVisibleCategory.value,
@@ -901,6 +905,26 @@ fun BottomSheetItemUi(
             } else {
                 painterResource(R.drawable.icon_category_not_checked)
             }, contentDescription = "체크 표시 아이콘"
+        )
+    }
+}
+
+@Composable
+fun IconAddActivityUi(modifier: Modifier = Modifier, onClickBtn: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+        Image(
+            painter = painterResource(id = R.drawable.icon_add_activity_btn),
+            contentDescription = "활동 추가 버튼",
+            modifier = Modifier
+                .size(56.dp)
+                .padding(end = 20.dp, bottom = 20.dp)
+                .clickable(
+                    interactionSource = remember {
+                        MutableInteractionSource()
+                    }, indication = null
+                ) {
+                    onClickBtn()
+                },
         )
     }
 }

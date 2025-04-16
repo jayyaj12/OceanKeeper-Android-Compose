@@ -3,7 +3,15 @@ package com.aos.oceankeeper_android_compose.ui
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
@@ -14,6 +22,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
@@ -46,6 +58,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             OceanKeeperAndroidComposeTheme {
+                var selectedRoute by remember { mutableStateOf("home_screen") }
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentRoute = navBackStackEntry?.destination?.route
@@ -59,7 +72,9 @@ class MainActivity : ComponentActivity() {
                 Timber.e("showBottomBar $showBottomBar")
                 Scaffold(bottomBar = {
                     if (showBottomBar) {
-                        BottomNavBar(navController)
+                        BottomNavBar(navController, selectedRoute) {
+                            selectedRoute = it
+                        }
                     }
                 }) { paddingValues ->
                     Box(modifier = Modifier.padding(paddingValues)) {
@@ -102,58 +117,61 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(
+    navController: NavController,
+    selectedRoute: String,
+    onNavClicked: (String) -> Unit
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    NavigationBar {
-        Timber.e("BottomNavScreen.items ${BottomNavScreen.items()}")
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .background(color = colorResource(id = R.color.white)),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         BottomNavScreen.items().forEach { screen ->
-            Timber.e("currentRoute $currentRoute")
-            NavigationBarItem(icon = {
-                Icon(
-                    painterResource(screen.icon),
-                    tint = Color.Unspecified,
-                    contentDescription = screen.label,
-                    modifier = Modifier.size(
-                        when (screen.route) {
-                            "home_screen" -> {
-                                24.dp
-                            }
+            val selected = screen.route == selectedRoute
 
-                            "message_screen" -> {
-                                25.dp
-                            }
-
-                            else -> {
-                                20.dp
+            Column(
+                modifier = Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        onNavClicked(screen.route)
+                        if (currentRoute != screen.route) {
+                            navController.navigate(screen.route) {
+                                popUpTo(BottomNavScreen.Home.route) { inclusive = false }
+                                launchSingleTop = true
                             }
                         }
-                    )
-
+                    }
+                    .padding(vertical = 8.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    painter = painterResource(
+                        id = if (selected) screen.selectIcon else screen.unSelectedIcon
+                    ),
+                    contentDescription = screen.label,
+                    tint = Color.Unspecified,
+                    modifier = Modifier.size(30.dp)
                 )
-            }, label = {
                 Text(
                     text = screen.label,
                     fontSize = 12.sp,
                     fontFamily = Pretendard,
                     fontWeight = FontWeight.Medium,
                     color = colorResource(
-                        id = if(currentRoute == "home_screen") {
-                            R.color.gray_600
-                        } else {
-                            R.color.gray_600
-                        }
+                        id = if (selected) R.color.primary_600 else R.color.gray_600
                     )
                 )
-            }, selected = currentRoute == screen.route, onClick = {
-                if (currentRoute != screen.route) {
-                    navController.navigate(screen.route) {
-                        popUpTo(BottomNavScreen.Home.route) { inclusive = false }
-                        launchSingleTop = true
-                    }
-                }
-            })
+            }
         }
     }
 }
+
