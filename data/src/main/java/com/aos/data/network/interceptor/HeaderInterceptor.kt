@@ -1,5 +1,6 @@
 package com.aos.data.network.interceptor
 
+import com.aos.core.util.TokenUtil
 import com.aos.data.BuildConfig
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
@@ -10,12 +11,8 @@ class HeaderInterceptor(): Interceptor {
         val originalRequest = chain.request()
         val originalUrl: HttpUrl = originalRequest.url
 
-        val newUrl = originalUrl.newBuilder()
-//            .addQueryParameter("key", BuildConfig.MOVIE_API_KEY)
-            .build()
-
         val newRequest = originalRequest.newBuilder()
-            .url(newUrl)
+            .addHeader("Authorization", "Bearer ${TokenUtil.getAccessToken()}")
             .build()
         return chain.proceed(newRequest)
     }

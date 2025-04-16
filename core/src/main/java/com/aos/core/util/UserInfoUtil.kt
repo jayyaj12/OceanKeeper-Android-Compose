@@ -16,11 +16,16 @@ object UserInfoUtil {
         userInfo.profileImgUrl = profileImgUrl
     }
 
+    fun setUserId(userId: String) {
+        userInfo.userId = userId
+    }
+
     fun getUserInfo(): UserInfo {
         return userInfo
     }
 
     data class UserInfo(
+        var userId: String ="",
         var deviceToken: String ="",
         var email: String ="",
         var nickname: String = "",

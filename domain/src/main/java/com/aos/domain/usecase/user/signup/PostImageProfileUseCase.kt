@@ -1,7 +1,7 @@
 package com.aos.domain.usecase.user.signup
 
 import com.aos.domain.model.user.signup.ImageProfileModel
-import com.aos.domain.repository.UserRepository
+import com.aos.domain.repository.user.UserRepository
 import java.io.File
 import javax.inject.Inject
 

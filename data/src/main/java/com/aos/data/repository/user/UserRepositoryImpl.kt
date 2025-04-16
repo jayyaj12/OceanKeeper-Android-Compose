@@ -11,7 +11,7 @@ import com.aos.data.network.state.NetworkState
 import com.aos.domain.model.user.login.LoginModel
 import com.aos.domain.model.user.signup.AuthSignUpModel
 import com.aos.domain.model.user.signup.ImageProfileModel
-import com.aos.domain.repository.UserRepository
+import com.aos.domain.repository.user.UserRepository
 import java.io.File
 import javax.inject.Inject
 
